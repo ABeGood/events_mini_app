@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "https://ABeGood.github.io/events_mini_app",
+  "homepage": "https://ABeGood.github.io/events-mini-app",
   "scripts": {
     "deploy": "gh-pages -d dist",
     "dev": "vite",
