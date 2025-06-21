@@ -35,28 +35,53 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     eventsCount
 }) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
+    const handleRef = useRef<HTMLDivElement | null>(null);
 
-    // Now using focused gesture-specific hook
     const { createGestureHandler, triggerHaptic } = useTelegramGestures();
 
     useEffect(() => {
         const sheet = sheetRef.current;
+        const handle = handleRef.current;
         if (!sheet) return;
 
-        // Define gesture behavior
+        // Helper function to check if touch should be captured for sheet control
+        const shouldCaptureGesture = (e: TouchEvent): boolean => {
+            const target = e.target as Element;
+
+            // Always capture if touching the handle
+            if (handle && (target === handle || handle.contains(target))) {
+                return true;
+            }
+
+            // If sheet is closed, capture upward swipes from anywhere on sheet
+            if (!isOpen) {
+                return sheet === target || sheet.contains(target);
+            }
+
+            // If sheet is open, only capture gestures that start near the top edge
+            // This allows content interaction while still enabling sheet control
+            const touch = e.touches[0];
+            const sheetRect = sheet.getBoundingClientRect();
+            const touchY = touch.clientY;
+            const sheetTop = sheetRect.top;
+
+            // Only capture if touch starts within 60px of the top of the sheet
+            // This includes the handle area and some space around it
+            return (touchY - sheetTop) < 60;
+        };
+
+        // Define gesture behavior with selective capture
         const gestureHandlers = createGestureHandler(
             // onGestureStart - decide whether to capture the gesture
             (e: TouchEvent) => {
-                // Always capture gestures that start on the BottomSheet
-                // Return true if we want to handle this gesture, false to let Telegram handle it
-                return isOpen || e.target === sheet || sheet.contains(e.target as Node);
+                return shouldCaptureGesture(e);
             },
 
             // onGestureMove - handle the gesture while it's happening
             (_e: TouchEvent, state: GestureState) => {
                 const { gestureDistance } = state;
 
-                // Provide haptic feedback at gesture milestones
+                // Only provide haptic feedback for significant gestures
                 if (gestureDistance === 50) {
                     triggerHaptic('selection');
                 }
@@ -65,14 +90,16 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             // onGestureEnd - decide final action based on gesture
             (_e: TouchEvent, state: GestureState) => {
                 const { gestureDirection, gestureDistance } = state;
-                const threshold = 80;
+
+                // Require larger threshold to prevent accidental triggers
+                const threshold = 100;
 
                 if (isOpen) {
                     // Sheet is open - handle close gestures
                     if (gestureDirection === 'down' && gestureDistance > threshold) {
                         onPositionChange(0); // Close sheet
                         triggerHaptic('impact', 'light');
-                    } else if (gestureDirection === 'up' && gestureDistance > 30) {
+                    } else if (gestureDirection === 'up' && gestureDistance > 50) {
                         onPositionChange(1); // Keep open/expand more
                         triggerHaptic('impact', 'light');
                     }
@@ -105,7 +132,10 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             className={`bottom-sheet ${isOpen ? 'open' : ''}`}
             data-sheet-open={isOpen}
         >
-            <div className="handle" />
+            <div
+                ref={handleRef}
+                className="handle"
+            />
 
             <div className="filter-header">
                 <h3>Filters</h3>

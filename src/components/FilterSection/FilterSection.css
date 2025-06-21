@@ -45,7 +45,11 @@
     margin: 0 -16px;
     /* чтобы карточки шли в край */
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    touch-action: pan-x; /* Allow horizontal panning only */
+    -webkit-overflow-scrolling: touch;
     /* Firefox */
 }
 
@@ -69,9 +73,23 @@
     cursor: pointer;
     user-select: none;
     flex-shrink: 0;
+
+    /* FIXED: Ensure cards are interactive */
+    touch-action: manipulation;
+    /* Optimized for taps */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+
+    /* Ensure proper cursor and hover states */
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .card-selected {
     background: #d4ffea;
     border: 1px solid #1d965c;
-    color: #1d965c; }
+    color: #1d965c; 
+    transform: scale(0.98);
+    opacity: 0.9;
+}

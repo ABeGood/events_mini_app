@@ -23,12 +23,20 @@
     cursor: pointer;
     user-select: none;
     border: 1px solid transparent;
+    touch-action: manipulation;
+    /* Optimized for taps */
+    user-select: none;
+    -webkit-user-select: none;
+    transition: all 0.2s ease;
 }
 
 .chip-active {
     background: #d4ffea;
     border-color: #1d965c;
     color: #1d965c;
+
+    transform: scale(0.95);
+    opacity: 0.8;
 }
 
 .show-less {

@@ -14,19 +14,19 @@
     flex-direction: column;
     max-height: 85%;
     transform: translateY(60%);
+    z-index: 1000;
 
-    /* ESSENTIAL: Only the touch properties needed for gesture handling */
+    /* FIXED: Allow vertical scrolling but prevent overscroll */
     touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    z-index: 1000;
 }
 
 .bottom-sheet.open {
     transform: translateY(0);
-    /* ESSENTIAL: Disable touch-action when open to capture gestures */
-    touch-action: none;
+    /* FIXED: Still allow pan-y for internal scrolling */
+    touch-action: pan-y;
 }
 
 .handle {
@@ -45,9 +45,12 @@
     padding: 16px;
     z-index: 2;
 
-    /* ESSENTIAL: Prevent text selection during gestures */
-    user-select: none;
-    -webkit-user-select: none;
+    /* FIXED: Allow normal interactions in header */
+    user-select: text;
+    /* Allow text selection */
+    -webkit-user-select: text;
+    touch-action: auto;
+    /* Allow normal touch behavior */
 }
 
 .filter-header h3 {
@@ -69,11 +72,20 @@
     padding-top: 16px;
     scrollbar-width: none;
 
-    /* ESSENTIAL: Allow normal scrolling within the sheet */
-    touch-action: pan-y;
+    /* FIXED: Allow all normal scrolling */
+    touch-action: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .filter-scroll::-webkit-scrollbar {
     display: none;
+}
+
+/* ADDED: Ensure interactive elements work normally */
+.filter-scroll button,
+.filter-scroll .chip,
+.filter-scroll .card {
+    touch-action: auto;
+    user-select: none;
+    -webkit-user-select: none;
 }
