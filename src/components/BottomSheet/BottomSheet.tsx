@@ -2,6 +2,7 @@
 import { FC, useRef, useEffect } from 'react';
 import { FilterChips } from '../FilterChips/FilterChips';
 import { FilterSection } from '../FilterSection/FilterSection';
+import { Search } from 'lucide-react';
 import './BottomSheet.css';
 
 interface EventCategory {
@@ -20,6 +21,7 @@ interface BottomSheetProps {
     selectedFilters: { [key: string]: string[] };
     onToggleFilter: (category: string, item: string) => void;
     eventsCount: number;
+    onOpenSearch: () => void; // Добавили onOpenSearch
 }
 
 export const BottomSheet: FC<BottomSheetProps> = ({
@@ -31,7 +33,8 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     eventCategories,
     selectedFilters,
     onToggleFilter,
-    eventsCount
+    eventsCount,
+    onOpenSearch // Добавили
 }) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,6 +84,16 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             className={`bottom-sheet ${isOpen ? 'open' : ''}`}
         >
             <div className="handle"></div>
+
+            {/* Строка поиска */}
+            <div className="search-container" onClick={onOpenSearch}>
+                <div className="search-box">
+                    <Search size={20} color="#888" style={{ marginRight: '8px' }} />
+                    <span className="search-placeholder">Search for event</span>
+                </div>
+            </div>
+
+
             <div className="filter-header">
                 <h3>Filters</h3>
                 <p>{eventsCount > 0 ? `${eventsCount} backend events + 364+ local events` : '364+ events available'}</p>

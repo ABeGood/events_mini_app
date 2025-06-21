@@ -58,6 +58,7 @@
     height: 136px;
     padding: 20px 12px 12px;
     background: #f5f6f7;
+    border: 1px solid transparent; /* добавляем border */
     border-radius: 8px;
     display: flex;
     justify-content: center;
@@ -69,9 +70,11 @@
     cursor: pointer;
     user-select: none;
     flex-shrink: 0;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .card-selected {
     background: #d4ffea;
-    border: 1px solid #1d965c;
-    color: #1d965c; }
+    border-color: #1d965c;
+    color: #1d965c;
+}
