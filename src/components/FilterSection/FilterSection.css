@@ -1,0 +1,77 @@
+/* src/components/FilterSection/FilterSection.css */
+
+.filter-section {
+    margin-bottom: 20px;
+    padding: 0 16px;
+    /* главный отступ слева-справа */
+}
+
+.filter-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #000;
+}
+
+.filter-section-title {
+    display: flex;
+    align-items: center;
+}
+
+.filter-section-title .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.filter-section-title .title-text {
+    font-weight: 500;
+}
+
+.select-label {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.filter-cards-horizontal {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 12px 12px;
+    /* убираем паддинги слева/справа */
+    margin: 0 -16px;
+    /* чтобы карточки шли в край */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.filter-cards-horizontal::-webkit-scrollbar {
+    display: none;
+}
+
+.card {
+    min-width: 144px;
+    height: 136px;
+    padding: 20px 12px 12px;
+    background: #f5f6f7;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #30323f;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.card-selected {
+    background: #d4ffea;
+    border: 1px solid #1d965c;
+    color: #1d965c; }

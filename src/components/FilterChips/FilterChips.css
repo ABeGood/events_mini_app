@@ -1,0 +1,38 @@
+/* src/components/FilterChips/FilterChips.css */
+
+.chips-container {
+    position: sticky;
+    top: 60px;
+    background: white;
+    z-index: 2;
+    padding: 8px 16px;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    padding: 8px 12px;
+    background: #f5f6f7;
+    border-radius: 22px;
+    font-size: 14px;
+    color: #2f313f;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.chip-active {
+    background: #d4ffea;
+    border-color: #1d965c;
+    color: #1d965c;
+}
+
+.show-less {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #1d965c;
+    cursor: pointer; }

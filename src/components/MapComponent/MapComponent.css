@@ -1,0 +1,32 @@
+/* src/components/MapComponent/MapComponent.css */
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+.event-marker {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 4px solid;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.event-marker img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.route-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1D96FF;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4); }

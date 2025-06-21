@@ -1,0 +1,47 @@
+/* src/components/BackendTestButton/BackendTestButton.css */
+
+.backend-test-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px 16px;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+/* Status-based background colors */
+.backend-test-button--idle {
+    background-color: #1D96FF;
+}
+
+.backend-test-button--loading {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+.backend-test-button--success {
+    background-color: #1D96FF;
+}
+
+.backend-test-button--error {
+    background-color: #1D96FF;
+}
+
+.backend-test-button:hover:not(:disabled) {
+    background-color: #1680E6;
+}
+
+.backend-test-button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.backend-test-button:disabled {
+    cursor: not-allowed; }

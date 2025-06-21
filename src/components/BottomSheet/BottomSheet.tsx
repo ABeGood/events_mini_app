@@ -2,6 +2,7 @@
 import { FC, useRef, useEffect } from 'react';
 import { FilterChips } from '../FilterChips/FilterChips';
 import { FilterSection } from '../FilterSection/FilterSection';
+import './BottomSheet.css';
 
 interface EventCategory {
     title: string;

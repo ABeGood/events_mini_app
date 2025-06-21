@@ -1,5 +1,6 @@
 // src/components/FilterSection/FilterSection.tsx
 import { FC } from 'react';
+import './FilterSection.css';
 
 interface FilterSectionProps {
     title: string;

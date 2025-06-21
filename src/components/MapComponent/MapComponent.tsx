@@ -2,6 +2,7 @@ import { FC, useRef, useEffect } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { CATEGORY_COLORS } from '../../constants/filterConstants';
+import './MapComponent.css';
 
 type Coordinates = [number, number];
 

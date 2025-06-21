@@ -5,7 +5,7 @@ import { BackendTestButton } from '../../components/BackendTestButton/BackendTes
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { useBackendApi } from '../../hooks/backendApi';
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
-import './map.css';
+import './IndexPage.css';
 
 declare global {
   interface Window {

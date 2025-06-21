@@ -1,5 +1,6 @@
 // src/components/FilterChips/FilterChips.tsx
 import { FC } from 'react';
+import './FilterChips.css';
 
 interface FilterChipsProps {
     chips: readonly string[];
