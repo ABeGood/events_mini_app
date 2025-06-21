@@ -2,6 +2,7 @@
 import { FC, useRef, useEffect } from 'react';
 import { FilterChips } from '../FilterChips/FilterChips';
 import { FilterSection } from '../FilterSection/FilterSection';
+import { useTelegramGestures, GestureState } from '../../hooks/useTelegramGestures';
 import './BottomSheet.css';
 
 interface EventCategory {
@@ -35,55 +36,85 @@ export const BottomSheet: FC<BottomSheetProps> = ({
 }) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
 
-    // Swipe functionality
+    // Now using focused gesture-specific hook
+    const { createGestureHandler, triggerHaptic } = useTelegramGestures();
+
     useEffect(() => {
         const sheet = sheetRef.current;
         if (!sheet) return;
 
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
+        // Define gesture behavior
+        const gestureHandlers = createGestureHandler(
+            // onGestureStart - decide whether to capture the gesture
+            (e: TouchEvent) => {
+                // Always capture gestures that start on the BottomSheet
+                // Return true if we want to handle this gesture, false to let Telegram handle it
+                return isOpen || e.target === sheet || sheet.contains(e.target as Node);
+            },
 
-        const onTouchStart = (e: TouchEvent) => {
-            isDragging = true;
-            startY = e.touches[0].clientY;
-        };
+            // onGestureMove - handle the gesture while it's happening
+            (_e: TouchEvent, state: GestureState) => {
+                const { gestureDistance } = state;
 
-        const onTouchMove = (e: TouchEvent) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            const deltaY = currentY - startY;
-            if (deltaY < -50) {
-                onPositionChange(1);
-            } else if (deltaY > 50) {
-                onPositionChange(0);
+                // Provide haptic feedback at gesture milestones
+                if (gestureDistance === 50) {
+                    triggerHaptic('selection');
+                }
+            },
+
+            // onGestureEnd - decide final action based on gesture
+            (_e: TouchEvent, state: GestureState) => {
+                const { gestureDirection, gestureDistance } = state;
+                const threshold = 80;
+
+                if (isOpen) {
+                    // Sheet is open - handle close gestures
+                    if (gestureDirection === 'down' && gestureDistance > threshold) {
+                        onPositionChange(0); // Close sheet
+                        triggerHaptic('impact', 'light');
+                    } else if (gestureDirection === 'up' && gestureDistance > 30) {
+                        onPositionChange(1); // Keep open/expand more
+                        triggerHaptic('impact', 'light');
+                    }
+                } else {
+                    // Sheet is closed - handle open gestures
+                    if (gestureDirection === 'up' && gestureDistance > threshold) {
+                        onPositionChange(1); // Open sheet
+                        triggerHaptic('impact', 'medium');
+                    }
+                    // For down gestures when closed, we don't capture so Telegram handles minimize
+                }
             }
-        };
+        );
 
-        const onTouchEnd = () => {
-            isDragging = false;
-        };
-
-        sheet.addEventListener('touchstart', onTouchStart);
-        sheet.addEventListener('touchmove', onTouchMove);
-        sheet.addEventListener('touchend', onTouchEnd);
+        // Apply event listeners
+        sheet.addEventListener('touchstart', gestureHandlers.onTouchStart, gestureHandlers.options);
+        sheet.addEventListener('touchmove', gestureHandlers.onTouchMove, gestureHandlers.options);
+        sheet.addEventListener('touchend', gestureHandlers.onTouchEnd, gestureHandlers.options);
 
         return () => {
-            sheet.removeEventListener('touchstart', onTouchStart);
-            sheet.removeEventListener('touchmove', onTouchMove);
-            sheet.removeEventListener('touchend', onTouchEnd);
+            sheet.removeEventListener('touchstart', gestureHandlers.onTouchStart);
+            sheet.removeEventListener('touchmove', gestureHandlers.onTouchMove);
+            sheet.removeEventListener('touchend', gestureHandlers.onTouchEnd);
         };
-    }, [onPositionChange]);
+    }, [isOpen, onPositionChange, createGestureHandler, triggerHaptic]);
 
     return (
         <div
             ref={sheetRef}
             className={`bottom-sheet ${isOpen ? 'open' : ''}`}
+            data-sheet-open={isOpen}
         >
-            <div className="handle"></div>
+            <div className="handle" />
+
             <div className="filter-header">
                 <h3>Filters</h3>
-                <p>{eventsCount > 0 ? `${eventsCount} backend events + 364+ local events` : '364+ events available'}</p>
+                <p>
+                    {eventsCount > 0
+                        ? `${eventsCount} backend events + 364+ local events`
+                        : '364+ events available'
+                    }
+                </p>
             </div>
 
             <FilterChips
