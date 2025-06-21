@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import { apiService } from '../../backend_api';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
+
+type Coordinates = [number, number];
+
+interface Event {
+  id: number;
+  coords: Coordinates;
+  image: string;
+  category: string;
+}
 
 declare global {
   interface Window {
@@ -30,6 +40,10 @@ export const IndexPage = () => {
   const [zoom] = useState(14);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
+
+  const [backendMessage, setBackendMessage] = useState<string>('');
+  const [backendStatus, setBackendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [apiEvents, setApiEvents] = useState<any[]>([]);
 
   const userPosition = useRef<[number, number]>([lng, lat]);
 
@@ -107,17 +121,21 @@ export const IndexPage = () => {
           }
         };
 
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-          DeviceOrientationEvent.requestPermission()
-            .then((state) => {
-              if (state === 'granted') {
-                window.addEventListener('deviceorientation', rotateHandler);
-              }
-            })
-            .catch(console.error);
-        } else {
-          window.addEventListener('deviceorientationabsolute', rotateHandler);
-          window.addEventListener('deviceorientation', rotateHandler);
+        if (typeof DeviceOrientationEvent !== 'undefined') {
+          const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+
+          if (typeof DeviceOrientationEventAny.requestPermission === 'function') {
+            DeviceOrientationEventAny.requestPermission()
+              .then((state: 'granted' | 'denied' | 'default') => {
+                if (state === 'granted') {
+                  window.addEventListener('deviceorientation', rotateHandler);
+                }
+              })
+              .catch(console.error);
+          } else {
+            window.addEventListener('deviceorientationabsolute', rotateHandler);
+            window.addEventListener('deviceorientation', rotateHandler);
+          }
         }
       },
       (error) => {
@@ -133,10 +151,10 @@ export const IndexPage = () => {
       return [
         lng + (Math.random() - 0.5) * delta,
         lat + (Math.random() - 0.5) * delta
-      ];
+      ] as Coordinates;
     };
 
-    const events = [
+    const events: Event[] = [
       { id: 1, coords: getRandomCoord(), image: 'https://s1.ticketm.net/dam/a/460/34410a17-4f62-43d2-a9df-f4ab8e2c5460_EVENT_DETAIL_PAGE_16_9.jpg', category: 'Music' },
       { id: 2, coords: getRandomCoord(), image: 'https://i.imgur.com/SdKQbZT.png', category: 'Arts & Theatre' },
       { id: 3, coords: getRandomCoord(), image: 'https://i.imgur.com/uIgDDDd.png', category: 'Clubs' },
@@ -155,8 +173,6 @@ export const IndexPage = () => {
       };
 
       el.appendChild(img);
-
-      const marker = new maplibregl.Marker({ element: el }).setLngLat(e.coords).addTo(map.current!);
 
       el.addEventListener('click', () => {
         const [fromLng, fromLat] = userPosition.current;
@@ -179,7 +195,7 @@ export const IndexPage = () => {
 
             // Отрисовать точки
             setTimeout(() => {
-              route.coordinates.forEach((coord, index) => {
+              route.coordinates.forEach((coord: Coordinates, index: number) => {
                 if (index % 1 === 0) {
                   const dot = document.createElement('div');
                   dot.className = 'route-dot';
@@ -222,6 +238,60 @@ export const IndexPage = () => {
           });
       });
     });
+  }, []);
+
+
+
+  useEffect(() => {
+    const testBackendConnection = async () => {
+      try {
+        setBackendStatus('loading');
+
+        // Test health check first
+        const healthResponse = await apiService.healthCheck();
+        console.log('Health check:', healthResponse);
+
+        // Get main message
+        const messageResponse = await apiService.getMessage();
+        setBackendMessage(messageResponse.message);
+
+        // Get events from backend
+        const eventsResponse = await apiService.getEvents();
+        setApiEvents(eventsResponse.events);
+
+        setBackendStatus('success');
+
+        // Show success in Telegram
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(`✅ Backend connected! ${messageResponse.message}`);
+        }
+
+        // Haptic feedback for success
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+
+      } catch (error) {
+        console.error('Backend connection failed:', error);
+        setBackendStatus('error');
+        setBackendMessage('Failed to connect to backend');
+
+        // Show error in Telegram
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(`❌ Backend connection failed: ${error}`);
+        }
+
+        // Haptic feedback for error
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+        }
+      }
+    };
+
+    // Test connection when component mounts
+    if (window.Telegram?.WebApp) {
+      testBackendConnection();
+    }
   }, []);
 
 
@@ -281,8 +351,95 @@ export const IndexPage = () => {
     });
   };
 
+
+  const BackendTestButton = () => (
+    <button
+      onClick={async () => {
+        try {
+          setBackendStatus('loading');
+          const response = await apiService.getMessage();
+          setBackendMessage(response.message);
+          setBackendStatus('success');
+
+          if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert(`🚀 ${response.message}`);
+          }
+
+          if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+          }
+        } catch (error) {
+          console.error('Test failed:', error);
+          setBackendStatus('error');
+          setBackendMessage('Connection failed');
+
+          if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert(`❌ Error: ${error}`);
+          }
+        }
+      }}
+      style={{
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        zIndex: 1000,
+        padding: '10px 16px',
+        backgroundColor: backendStatus === 'loading' ? '#999' : '#1D96FF',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+      }}
+      disabled={backendStatus === 'loading'}
+    >
+      {backendStatus === 'loading' ? '⏳ Testing...' :
+        backendStatus === 'success' ? '✅ Test API' :
+          backendStatus === 'error' ? '❌ Retry' : '🔌 Test Backend'}
+    </button>
+  );
+
+
+  const BackendStatus = () => (
+    <div style={{
+      position: 'absolute',
+      top: '60px',
+      left: '10px',
+      right: '10px',
+      zIndex: 1000,
+      padding: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderRadius: '12px',
+      fontSize: '13px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      border: `2px solid ${backendStatus === 'success' ? '#1D965C' :
+          backendStatus === 'error' ? '#961D1D' :
+            backendStatus === 'loading' ? '#1D96FF' : '#ddd'
+        }`
+    }}>
+      <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+        {backendStatus === 'success' ? '✅ Backend Connected' :
+          backendStatus === 'error' ? '❌ Backend Error' :
+            backendStatus === 'loading' ? '⏳ Connecting...' : '⚪ Backend Status'}
+      </div>
+      <div style={{ fontSize: '12px', color: '#666' }}>
+        {backendMessage || 'No message from backend yet'}
+      </div>
+      {apiEvents.length > 0 && (
+        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+          📍 Loaded {apiEvents.length} events from backend
+        </div>
+      )}
+    </div>
+  );
+
+
   return (
     <div className="telegram-app-container">
+      <BackendTestButton />
+      <BackendStatus />
       <div ref={mapContainer} className="map-container" />
       <div
         ref={sheetRef}
@@ -291,7 +448,7 @@ export const IndexPage = () => {
         <div className="handle"></div>
         <div className="filter-header">
           <h3>Filters</h3>
-          <p>364+ events available</p>
+          <p>{apiEvents.length > 0 ? `${apiEvents.length} backend events + 364+ local events` : '364+ events available'}</p>
         </div>
         <div className="chips-container">
           <div className="chips">
