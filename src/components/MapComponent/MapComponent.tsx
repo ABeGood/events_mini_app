@@ -1,7 +1,7 @@
-// src/components/MapComponent/MapComponent.tsx
 import { FC, useRef, useEffect } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { CATEGORY_COLORS } from '../../constants/filterConstants';
 
 type Coordinates = [number, number];
 
@@ -27,12 +27,6 @@ export const MapComponent: FC<MapComponentProps> = ({
     const map = useRef<maplibregl.Map | null>(null);
     const routeMarkersRef = useRef<maplibregl.Marker[]>([]);
     const userPosition = useRef<[number, number]>([lng, lat]);
-
-    const categoryColors: { [key: string]: string } = {
-        'Music': '#1D965C',
-        'Arts & Theatre': '#7E1D96',
-        'Clubs': '#961D1D',
-    };
 
     useEffect(() => {
         if (map.current) return;
@@ -148,7 +142,7 @@ export const MapComponent: FC<MapComponentProps> = ({
         events.forEach(e => {
             const el = document.createElement('div');
             el.className = 'event-marker';
-            el.style.borderColor = categoryColors[e.category] || '#1D965C';
+            el.style.borderColor = CATEGORY_COLORS[e.category] || '#1D965C';
 
             const img = document.createElement('img');
             img.src = e.image;

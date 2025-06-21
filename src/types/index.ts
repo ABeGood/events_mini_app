@@ -1,4 +1,3 @@
-// src/types/index.ts
 export type Coordinates = [number, number];
 
 export interface Event {
@@ -11,7 +10,7 @@ export interface Event {
 export interface EventCategory {
     title: string;
     color: string;
-    items: string[];
+    items: readonly string[];
 }
 
 export interface BackendEvent {
@@ -23,3 +22,8 @@ export interface BackendEvent {
 }
 
 export type BackendStatus = 'idle' | 'loading' | 'success' | 'error';
+
+// Filter-related types
+export type FilterChip = 'Under 18' | '18+' | 'Family' | 'Free entry' | 'Festivals' | 'Sports' | 'More';
+
+export type CategoryName = 'Music' | 'Arts & Theatre' | 'Clubs';

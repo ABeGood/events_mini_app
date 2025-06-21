@@ -2,7 +2,7 @@
 import { FC } from 'react';
 
 interface FilterChipsProps {
-    chips: string[];
+    chips: readonly string[];
     selectedChips: string[];
     onToggleChip: (chip: string) => void;
 }

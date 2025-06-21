@@ -4,7 +4,7 @@ import { FC } from 'react';
 interface FilterSectionProps {
     title: string;
     color: string;
-    items: string[];
+    items: readonly string[];
     selectedItems: string[];
     onToggleItem: (item: string) => void;
 }

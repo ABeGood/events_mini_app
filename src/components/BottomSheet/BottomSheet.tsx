@@ -6,16 +6,16 @@ import { FilterSection } from '../FilterSection/FilterSection';
 interface EventCategory {
     title: string;
     color: string;
-    items: string[];
+    items: readonly string[];
 }
 
 interface BottomSheetProps {
     isOpen: boolean;
     onPositionChange: (position: number) => void;
-    allChips: string[];
+    allChips: readonly string[];
     selectedChips: string[];
     onToggleChip: (chip: string) => void;
-    eventCategories: EventCategory[];
+    eventCategories: readonly EventCategory[];
     selectedFilters: { [key: string]: string[] };
     onToggleFilter: (category: string, item: string) => void;
     eventsCount: number;

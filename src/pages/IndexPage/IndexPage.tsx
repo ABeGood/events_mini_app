@@ -1,10 +1,10 @@
-// src/pages/IndexPage/IndexPage.tsx (Cleaned up version)
 import { useEffect, useState } from 'react';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet';
 import { BackendTestButton } from '../../components/BackendTestButton/BackendTestButton';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { useBackendApi } from '../../hooks/backendApi';
+import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
 import './map.css';
 
 declare global {
@@ -12,14 +12,6 @@ declare global {
     Telegram: any;
   }
 }
-
-const allChips = ['Under 18', '18+', 'Family', 'Free entry', 'Festivals', 'Sports', 'More'];
-
-const eventCategories = [
-  { title: 'Music', color: '#1D965C', items: Array(12).fill('Alternative/Indie Rock') },
-  { title: 'Arts & Theatre', color: '#7E1D96', items: Array(12).fill('Classical') },
-  { title: 'Clubs', color: '#961D1D', items: Array(12).fill('Dance/Electronic') },
-];
 
 export const IndexPage = () => {
   const [sheetPosition, setSheetPosition] = useState(0);
@@ -73,10 +65,10 @@ export const IndexPage = () => {
       <BottomSheet
         isOpen={sheetPosition === 1}
         onPositionChange={setSheetPosition}
-        allChips={allChips}
+        allChips={FILTER_CHIPS}
         selectedChips={selectedChips}
         onToggleChip={toggleChip}
-        eventCategories={eventCategories}
+        eventCategories={EVENT_CATEGORIES}
         selectedFilters={selectedFilters}
         onToggleFilter={toggleFilter}
         eventsCount={apiEvents.length}
