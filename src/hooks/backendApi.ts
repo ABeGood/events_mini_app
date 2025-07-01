@@ -1,6 +1,6 @@
 // src/hooks/useBackendApi.ts
 import { useState, useEffect } from 'react';
-import { apiService } from '../backend_api';
+import { apiService } from '../backend_api/backend_api';
 
 export interface BackendState {
     message: string;
@@ -11,6 +11,7 @@ export interface BackendState {
 export const useBackendApi = () => {
     const [backendMessage, setBackendMessage] = useState<string>('');
     const [backendStatus, setBackendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [eventsStatus, setEventsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [apiEvents, setApiEvents] = useState<any[]>([]);
 
     const testBackendConnection = async () => {
@@ -58,6 +59,47 @@ export const useBackendApi = () => {
         }
     };
 
+    const fetchEvents = async () => {
+        try {
+            setEventsStatus('loading');
+
+            const eventsResponse = await apiService.getEvents();
+
+            // Transform events to match your interface
+            const transformedEvents = eventsResponse.events.map((event: any, index: number) => ({
+                id: event.id || index,
+                title: event.name || event.title || 'Untitled Event',
+                description: event.info || event.description || event.please_note || '',
+                // Keep original data for debugging
+                _original: event
+            }));
+
+
+            setApiEvents(transformedEvents);
+            setEventsStatus('success');
+
+            if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(`📍 Loaded ${eventsResponse.events.length} events!`);
+            }
+
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+        } catch (error) {
+            console.error('Failed to fetch events:', error);
+            setEventsStatus('error');
+            setApiEvents([]);
+
+            if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(`❌ Failed to load events: ${error}`);
+            }
+
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+            }
+        }
+    };
+
     const testApiCall = async () => {
         try {
             setBackendStatus('loading');
@@ -94,7 +136,9 @@ export const useBackendApi = () => {
         backendMessage,
         backendStatus,
         apiEvents,
+        eventsStatus,
         testApiCall,
-        testBackendConnection
+        testBackendConnection,
+        fetchEvents
     };
 };

@@ -5,10 +5,9 @@ import './BackendStatus.css';
 interface BackendStatusProps {
     status: 'idle' | 'loading' | 'success' | 'error';
     message: string;
-    eventsCount: number;
 }
 
-export const BackendStatus: FC<BackendStatusProps> = ({ status, message, eventsCount }) => {
+export const BackendStatus: FC<BackendStatusProps> = ({ status, message}) => {
     const getStatusText = () => {
         switch (status) {
             case 'success': return '✅ Backend Connected';
@@ -26,11 +25,6 @@ export const BackendStatus: FC<BackendStatusProps> = ({ status, message, eventsC
             <div className="backend-status__message">
                 {message || 'No message from backend yet'}
             </div>
-            {eventsCount > 0 && (
-                <div className="backend-status__events">
-                    📍 Loaded {eventsCount} events from backend
-                </div>
-            )}
         </div>
     );
 };

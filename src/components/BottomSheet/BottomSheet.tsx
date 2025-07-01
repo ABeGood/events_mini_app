@@ -140,10 +140,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
             <div className="filter-header">
                 <h3>Filters</h3>
                 <p>
-                    {eventsCount > 0
-                        ? `${eventsCount} backend events + 364+ local events`
-                        : '364+ events available'
-                    }
+                    `${eventsCount} backend events`
                 </p>
             </div>
 

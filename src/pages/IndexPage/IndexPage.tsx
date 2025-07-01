@@ -4,6 +4,8 @@ import { MapComponent } from '../../components/MapComponent/MapComponent';
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet';
 import { BackendTestButton } from '../../components/BackendTestButton/BackendTestButton';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
+import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
+import { EventsStatus } from '../../components/BackendEventsStstus/BackendEventsStatus';
 import { useBackendApi } from '../../hooks/backendApi';
 import { useTelegramApp } from '../../hooks/useTelegramApp'; // Simplified hook
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
@@ -18,7 +20,9 @@ export const IndexPage = () => {
     backendMessage,
     backendStatus,
     apiEvents,
-    testApiCall
+    eventsStatus,
+    testApiCall,
+    fetchEvents
   } = useBackendApi();
 
   // Use simplified app-level hook
@@ -73,6 +77,16 @@ export const IndexPage = () => {
       <BackendStatus
         status={backendStatus}
         message={backendMessage}
+      />
+
+      <EventsTestButton
+        status={eventsStatus}
+        onFetchEvents={fetchEvents}
+      />
+
+      <EventsStatus
+        status={eventsStatus}
+        events={apiEvents}
         eventsCount={apiEvents.length}
       />
 
