@@ -7,7 +7,7 @@ import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
 import { EventsStatus } from '../../components/BackendEventsStstus/BackendEventsStatus';
 import { useBackendApi } from '../../hooks/backendApi';
-import { useTelegramApp } from '../../hooks/useTelegramApp'; // Simplified hook
+import { useTelegramApp } from '../../hooks/useTelegramApp';
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
 import './IndexPage.css';
 
@@ -16,17 +16,24 @@ export const IndexPage = () => {
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
 
+  // Get ALL values from the backend API hook
   const {
-    backendMessage,
-    backendStatus,
     apiEvents,
-    eventsStatus,
-    testApiCall,
-    fetchEvents
+    backendStatus,
+    error,
+    fetchEvents,
+    backendMessage // Add this if your hook returns it
   } = useBackendApi();
 
   // Use simplified app-level hook
   const { initializeTelegramApp, triggerHaptic } = useTelegramApp();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('IndexPage - apiEvents:', apiEvents);
+    console.log('IndexPage - backendStatus:', backendStatus);
+    console.log('IndexPage - events count:', apiEvents.length);
+  }, [apiEvents, backendStatus]);
 
   // Initialize Telegram WebApp once on mount
   useEffect(() => {
@@ -37,11 +44,10 @@ export const IndexPage = () => {
     const isOpening = position > sheetPosition;
     setSheetPosition(position);
 
-    // Provide appropriate haptic feedback for UI state changes
     if (isOpening && position === 1) {
-      triggerHaptic('impact', 'medium'); // Sheet opening
+      triggerHaptic('impact', 'medium');
     } else if (!isOpening && position === 0) {
-      triggerHaptic('impact', 'light'); // Sheet closing
+      triggerHaptic('impact', 'light');
     }
   };
 
@@ -49,8 +55,6 @@ export const IndexPage = () => {
     setSelectedChips(prev =>
       prev.includes(chip) ? prev.filter(c => c !== chip) : [...prev, chip]
     );
-
-    // Haptic feedback for filter interactions
     triggerHaptic('selection');
   };
 
@@ -59,10 +63,7 @@ export const IndexPage = () => {
       const current = prev[category] || [];
       const exists = current.includes(item);
       const updated = exists ? current.filter(i => i !== item) : [...current, item];
-
-      // Haptic feedback for filter changes
       triggerHaptic('selection');
-
       return { ...prev, [category]: updated };
     });
   };
@@ -71,26 +72,31 @@ export const IndexPage = () => {
     <div className="telegram-app-container">
       <BackendTestButton
         status={backendStatus}
-        onTest={testApiCall}
+        onTest={fetchEvents}
       />
 
       <BackendStatus
         status={backendStatus}
-        message={backendMessage}
+        message={backendMessage || error || 'Ready'}
       />
 
       <EventsTestButton
-        status={eventsStatus}
+        status={backendStatus} // Use same status
         onFetchEvents={fetchEvents}
       />
 
-      <EventsStatus
-        status={eventsStatus}
+      {/* <EventsStatus
+        status={backendStatus} // Use same status
         events={apiEvents}
         eventsCount={apiEvents.length}
-      />
+      /> */}
 
-      <MapComponent />
+      {/* Pass the shared state to MapComponent */}
+      <MapComponent
+        apiEvents={apiEvents}
+        backendStatus={backendStatus}
+        error={error}
+      />
 
       <BottomSheet
         isOpen={sheetPosition === 1}

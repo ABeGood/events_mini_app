@@ -1,144 +1,111 @@
-// src/hooks/useBackendApi.ts
-import { useState, useEffect } from 'react';
+// src/hooks/backendApi.ts
+import { useState, useEffect, useCallback } from 'react';
 import { apiService } from '../backend_api/backend_api';
+import { BackendEvent } from '../types/index';
 
-export interface BackendState {
-    message: string;
-    status: 'idle' | 'loading' | 'success' | 'error';
-    events: any[];
-}
+type BackendStatus = 'idle' | 'loading' | 'success' | 'error';
+
+// Event adapter function
+const adaptApiEventToBackendEvent = (apiEvent: any): BackendEvent | null => {
+    // Validate required properties
+    if (!apiEvent || typeof apiEvent.id !== 'string') {
+        console.warn('Invalid event - missing or invalid id:', apiEvent);
+        return null;
+    }
+
+    if (!apiEvent.venue.address || typeof apiEvent.venue.address !== 'string') {
+        console.warn('Invalid event - missing or invalid title:', apiEvent);
+        return null;
+    }
+
+    if (!apiEvent.venue.city || typeof apiEvent.venue.city !== 'string') {
+        console.warn('Invalid event - missing or invalid category:', apiEvent);
+        return null;
+    }
+
+    if (typeof apiEvent.venue.location !== 'object' || apiEvent.venue.location === null ||
+        !('latitude' in apiEvent.venue.location) || !('longitude' in apiEvent.venue.location) ||
+        typeof apiEvent.venue.location.latitude !== 'string' || typeof apiEvent.venue.location.longitude !== 'string') {
+        console.warn('Invalid event - invalid location (expected object with latitude and longitude numbers):', apiEvent);
+        return null;
+    }
+
+    const lat = parseFloat(apiEvent.venue.location.latitude);
+    const lng = parseFloat(apiEvent.venue.location.longitude);
+
+    // 2. Validate if conversion was successful (i.e., they are valid numbers)
+    if (isNaN(lat) || isNaN(lng)) {
+        console.warn('Invalid event - location coordinates must be valid numbers:', apiEvent);
+        return null;
+    }
+
+    // Return properly typed BackendEvent
+    return {
+        id: apiEvent.id,
+        title: apiEvent.title,
+        category: apiEvent.category,
+        image: apiEvent.image || 'https://i.imgur.com/uIgDDDd.png', // Default image
+        location: [lng, lat] as [number, number],
+        description: apiEvent.description || ''
+    };
+};
+
+
+const adaptApiEventsToBackendEvents = (apiEvents: any[]): BackendEvent[] => {
+    if (!Array.isArray(apiEvents)) {
+        console.warn('API events is not an array:', apiEvents);
+        return [];
+    }
+
+    return apiEvents
+        .map(adaptApiEventToBackendEvent)
+        .filter((event): event is BackendEvent => event !== null);
+};
+
 
 export const useBackendApi = () => {
-    const [backendMessage, setBackendMessage] = useState<string>('');
-    const [backendStatus, setBackendStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [eventsStatus, setEventsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [apiEvents, setApiEvents] = useState<any[]>([]);
+    const [apiEvents, setApiEvents] = useState<BackendEvent[]>([]);
+    const [backendStatus, setBackendStatus] = useState<BackendStatus>('idle');
+    const [error, setError] = useState<string | null>(null);
+    const [backendMessage, setBackendMessage] = useState<string>('Ready');
 
-    const testBackendConnection = async () => {
+    const fetchEvents = useCallback(async () => {
         try {
             setBackendStatus('loading');
+            setError(null);
+            setBackendMessage('Fetching events...');
 
-            // Test health check first
-            const healthResponse = await apiService.healthCheck();
-            console.log('Health check:', healthResponse);
+            console.log('Fetching events from API...');
+            const response = await apiService.getEvents();
+            console.log('Events fetched successfully:', response);
 
-            // Get main message
-            const messageResponse = await apiService.getMessage();
-            setBackendMessage(messageResponse.message);
+            const adaptedEvents = adaptApiEventsToBackendEvents(response.events || []);
+            console.log('Adapted events:', adaptedEvents);
 
-            // Get events from backend
-            const eventsResponse = await apiService.getEvents();
-            setApiEvents(eventsResponse.events);
-
+            setApiEvents(adaptedEvents);
             setBackendStatus('success');
+            setBackendMessage(`Loaded ${adaptedEvents.length} valid events`);
 
-            // Show success in Telegram
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`✅ Backend connected! ${messageResponse.message}`);
-            }
-
-            // Haptic feedback for success
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }
-
-        } catch (error) {
-            console.error('Backend connection failed:', error);
+        } catch (err) {
+            console.error('Failed to fetch events:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            setError(errorMessage);
             setBackendStatus('error');
-            setBackendMessage('Failed to connect to backend');
-
-            // Show error in Telegram
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`❌ Backend connection failed: ${error}`);
-            }
-
-            // Haptic feedback for error
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
-        }
-    };
-
-    const fetchEvents = async () => {
-        try {
-            setEventsStatus('loading');
-
-            const eventsResponse = await apiService.getEvents();
-
-            // Transform events to match your interface
-            const transformedEvents = eventsResponse.events.map((event: any, index: number) => ({
-                id: event.id || index,
-                title: event.name || event.title || 'Untitled Event',
-                description: event.info || event.description || event.please_note || '',
-                // Keep original data for debugging
-                _original: event
-            }));
-
-
-            setApiEvents(transformedEvents);
-            setEventsStatus('success');
-
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`📍 Loaded ${eventsResponse.events.length} events!`);
-            }
-
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }
-        } catch (error) {
-            console.error('Failed to fetch events:', error);
-            setEventsStatus('error');
+            setBackendMessage(`Error: ${errorMessage}`);
             setApiEvents([]);
-
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`❌ Failed to load events: ${error}`);
-            }
-
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-            }
-        }
-    };
-
-    const testApiCall = async () => {
-        try {
-            setBackendStatus('loading');
-            const response = await apiService.getMessage();
-            setBackendMessage(response.message);
-            setBackendStatus('success');
-
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`🚀 ${response.message}`);
-            }
-
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
-        } catch (error) {
-            console.error('Test failed:', error);
-            setBackendStatus('error');
-            setBackendMessage('Connection failed');
-
-            if (window.Telegram?.WebApp?.showAlert) {
-                window.Telegram.WebApp.showAlert(`❌ Error: ${error}`);
-            }
-        }
-    };
-
-    useEffect(() => {
-        // Test connection when hook mounts
-        if (window.Telegram?.WebApp) {
-            testBackendConnection();
         }
     }, []);
 
+    // Auto-fetch on mount
+    useEffect(() => {
+        fetchEvents();
+    }, [fetchEvents]);
+
     return {
-        backendMessage,
-        backendStatus,
         apiEvents,
-        eventsStatus,
-        testApiCall,
-        testBackendConnection,
+        backendStatus,
+        error,
+        backendMessage,
         fetchEvents
     };
 };

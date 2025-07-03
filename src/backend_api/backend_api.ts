@@ -12,6 +12,7 @@ interface EventsResponse {
     events: Array<{
         id: number;
         title: string;
+        image: string;
         category: string;
         location: [number, number];
         description: string;

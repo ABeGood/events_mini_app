@@ -3,7 +3,7 @@ import { FC } from 'react';
 import './BackendEventsStatus.css';
 
 interface Event {
-    id: number;
+    id: string;
     title: string;
     category: string;
     location: [number, number];

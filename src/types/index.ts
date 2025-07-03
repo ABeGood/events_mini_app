@@ -1,10 +1,10 @@
-export type Coordinates = [number, number];
-
-export interface Event {
-    id: number;
-    coords: Coordinates;
-    image: string;
+export interface BackendEvent {
+    id: string;
+    title: string;
     category: string;
+    image: string;
+    location: [number, number];
+    description: string;
 }
 
 export interface EventCategory {
@@ -13,13 +13,6 @@ export interface EventCategory {
     items: readonly string[];
 }
 
-export interface BackendEvent {
-    id: number;
-    title: string;
-    category: string;
-    location: [number, number];
-    description: string;
-}
 
 export type BackendStatus = 'idle' | 'loading' | 'success' | 'error';
 
