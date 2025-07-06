@@ -5,7 +5,6 @@ import { BottomSheet } from '../../components/BottomSheet/BottomSheet';
 import { BackendTestButton } from '../../components/BackendTestButton/BackendTestButton';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
-import { EventsStatus } from '../../components/BackendEventsStstus/BackendEventsStatus';
 import { useBackendApi } from '../../hooks/backendApi';
 import { useTelegramApp } from '../../hooks/useTelegramApp';
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';

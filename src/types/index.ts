@@ -1,19 +1,3 @@
-export interface BackendEvent {
-    id: string;
-    title: string;
-    category: string;
-    image: string;
-    location: [number, number];
-    description: string;
-}
-
-export interface EventCategory {
-    title: string;
-    color: string;
-    items: readonly string[];
-}
-
-
 export type BackendStatus = 'idle' | 'loading' | 'success' | 'error';
 
 // Filter-related types

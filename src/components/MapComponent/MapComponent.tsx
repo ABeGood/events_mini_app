@@ -4,7 +4,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { CATEGORY_COLORS } from '../../constants/filterConstants';
 import './MapComponent.css';
-import { BackendEvent } from '../../types';
+import { BackendEvent } from '../../types/event';
 
 interface MapComponentProps {
     lng?: number;
@@ -44,12 +44,29 @@ export const MapComponent: FC<MapComponentProps> = ({
         }
 
         return apiEvents.map(event => ({
+            // Core fields
             id: event.id,
             title: event.title,
             description: event.description,
             location: event.location,
-            image: event.image || 'https://i.imgur.com/uIgDDDd.png',
-            category: event.category
+            image: event.image || '', // TODO
+            category: event.category,
+
+            // Extended required fields
+            date: event.date,
+            datetime: event.datetime,
+            time: event.time,
+            timezone: event.timezone,
+            status: event.status,
+            url: event.url,
+            venue: event.venue,
+            classifications: event.classifications,
+            images: event.images,
+            priceRanges: event.priceRanges,
+
+            // Optional fields
+            pleaseNote: event.pleaseNote,
+            info: event.info
         }));
     }, [apiEvents]);
 
@@ -157,6 +174,7 @@ export const MapComponent: FC<MapComponentProps> = ({
         }
 
         console.log('Adding', events.length, 'event markers');
+
         events.forEach((e, index) => {
             console.log(`Adding marker ${index} for event:`, e);
 
@@ -165,11 +183,11 @@ export const MapComponent: FC<MapComponentProps> = ({
             el.style.borderColor = CATEGORY_COLORS[e.category] || '#1D965C';
 
             const img = document.createElement('img');
-            img.src = e.description; // AG: huevo
+            img.src = e.image; // AG: huevo
             img.alt = 'Event';
-            img.onerror = () => {
-                img.src = 'https://placekitten.com/200/200';
-            };
+            // img.onerror = () => {
+            //     img.src = 'https://placekitten.com/200/200';
+            // };
 
             el.appendChild(img);
 
@@ -178,7 +196,7 @@ export const MapComponent: FC<MapComponentProps> = ({
                 const [fromLng, fromLat] = userPosition.current;
                 const MAPBOX_TOKEN = 'pk.eyJ1IjoianBlZ3R1cmJvIiwiYSI6ImNtYzJndXl4bzA3azEyanNrNGh0a20xN3EifQ.hjDsgozZ5D4UrYZlNSa2Ag';
 
-                fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${fromLng},${fromLat};${e.location[0]},${e.location[1]}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
+                fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${fromLng},${fromLat};${e.location.lat},${e.location.long}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
                     .then(res => res.json())
                     .then(data => {
                         const route = data.routes[0]?.geometry;
@@ -224,7 +242,7 @@ export const MapComponent: FC<MapComponentProps> = ({
                             label.innerText = `🚶‍♂️ ${Math.round(duration / 60)} мин`;
 
                             const labelMarker = new maplibregl.Marker({ element: label })
-                                .setLngLat(e.location)
+                                .setLngLat({lon: e.location.long, lat: e.location.lat})
                                 .addTo(map.current!);
 
                             routeMarkersRef.current.push(labelMarker);
@@ -236,7 +254,7 @@ export const MapComponent: FC<MapComponentProps> = ({
             });
 
             const marker = new maplibregl.Marker({ element: el })
-                .setLngLat(e.location)
+                .setLngLat({ lon: e.location.long, lat: e.location.lat })
                 .addTo(map.current!);
 
             eventMarkersRef.current.push(marker);

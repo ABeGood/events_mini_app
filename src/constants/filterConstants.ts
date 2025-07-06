@@ -1,5 +1,5 @@
 // src/constants/filterConstants.ts
-import { EventCategory } from '../types';
+import { EventCategory } from '../types/event';
 
 export const FILTER_CHIPS = [
     'Under 18',
