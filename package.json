@@ -20,6 +20,7 @@
     "@telegram-apps/telegram-ui": "^2.1.8",
     "@tonconnect/ui-react": "^2.1.0",
     "eruda": "^3.4.1",
+    "lucide-react": "^0.522.0",
     "maplibre-gl": "^5.6.0",
     "mui-bottom-sheet": "^1.0.3",
     "react": "^18.2.0",

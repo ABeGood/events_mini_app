@@ -8,12 +8,18 @@ import { EventsTestButton } from '../../components/BackendEventsButton/BackendEv
 import { useBackendApi } from '../../hooks/backendApi';
 import { useTelegramApp } from '../../hooks/useTelegramApp';
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
+import { SearchOverlay } from '../../components/SearchOverlay/SearchOverlay';
+import { LocateButton } from '../../components/LocateButton/LocateButton';
 import './IndexPage.css';
 
 export const IndexPage = () => {
   const [sheetPosition, setSheetPosition] = useState(0);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
+  const mapRef = useRef<maplibregl.Map | undefined>(undefined);
 
   // Get ALL values from the backend API hook
   const {
@@ -67,6 +73,19 @@ export const IndexPage = () => {
     });
   };
 
+  const handleLocateClick = () => {
+    if (userCoords && mapRef.current) {
+      console.log('Center map to:', userCoords);
+      mapRef.current.flyTo({
+        center: userCoords,
+        zoom: 15,
+        speed: 1.2
+      });
+    } else {
+      console.warn('User position not ready yet');
+    }
+  };
+
   return (
     <div className="telegram-app-container">
       <BackendTestButton
@@ -107,6 +126,12 @@ export const IndexPage = () => {
         selectedFilters={selectedFilters}
         onToggleFilter={toggleFilter}
         eventsCount={apiEvents.length}
+        onOpenSearch={() => setIsSearchOpen(true)}
+      />
+
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
       />
     </div>
   );

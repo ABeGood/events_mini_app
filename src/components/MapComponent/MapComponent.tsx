@@ -76,13 +76,13 @@ export const MapComponent: FC<MapComponentProps> = ({
 
         const style = 'https://api.maptiler.com/maps/positron/style.json?key=I9FUhj5Q1VfXxZWCO8Ky';
 
-        map.current = new maplibregl.Map({
-            container: mapContainer.current!,
-            style,
-            center: [lng, lat],
-            zoom: zoom,
-            attributionControl: false,
-        });
+            map.current = new maplibregl.Map({
+                container: mapContainer.current!,
+                style,
+                center: [lng, lat],
+                zoom: zoom,
+                attributionControl: false,
+            });
 
         map.current.on('style.load', () => {
             map.current!.getStyle().layers?.forEach(layer => {
@@ -107,9 +107,9 @@ export const MapComponent: FC<MapComponentProps> = ({
                 el.style.backgroundRepeat = 'no-repeat';
                 el.style.transformOrigin = 'center center';
 
-                const userMarker = new maplibregl.Marker({ element: el })
-                    .setLngLat([userLng, userLat])
-                    .addTo(map.current!);
+                    const userMarker = new maplibregl.Marker({ element: el })
+                        .setLngLat([userLng, userLat])
+                        .addTo(map.current!);
 
                 navigator.geolocation.watchPosition(
                     (pos) => {
@@ -280,5 +280,6 @@ export const MapComponent: FC<MapComponentProps> = ({
         );
     }
 
-    return <div ref={mapContainer} className="map-container" />;
-};
+        return <div ref={mapContainer} className="map-container" />;
+    }
+);

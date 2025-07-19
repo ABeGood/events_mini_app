@@ -1,0 +1,25 @@
+.wrapper {
+  padding: 0px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 12px 0 12px;
+  color: #000;
+}
+
+.scrollContainer {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 0;
+  padding-left: 0px;
+  margin-right: -12px; /* <-- Добавь вот это */
+}
+
+
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}

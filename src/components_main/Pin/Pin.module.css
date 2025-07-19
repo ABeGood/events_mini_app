@@ -1,0 +1,96 @@
+/* ===== Точка категории ===== */
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+/* Цвета категорий */
+.music     { background-color: #3B82F6; }
+.theatre   { background-color: #B91C1C; }
+.sports    { background-color: #EF4444; }
+.art       { background-color: #EC4899; }
+.festivals { background-color: #06B6D4; }
+.wellness  { background-color: #22C55E; }
+.family    { background-color: #FACC15; }
+.talks     { background-color: #FB923C; }
+.food      { background-color: #F97316; }
+
+/* ===== PinPhoto (аватар с хвостом) ===== */
+.photoWrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: white;
+  overflow: visible;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;
+}
+
+.tip {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: white;
+  z-index: 0;
+}
+
+/* ===== PinExtended (баббл с текстом) ===== */
+.extendedWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 9999px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  padding: 4px 4px 4px 4px;
+  min-height: 72px;
+  min-width: 72px;
+}
+
+/* БОЛЬШОЙ круглый аватар слева */
+.extendedWrapper .avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
+/* Текст справа */
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  white-space: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Хвост — под кругом (по центру аватара) */
+.tip {
+  position: absolute;
+  bottom: -2px;
+  left: 36px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: white;
+  z-index: 0;
+}

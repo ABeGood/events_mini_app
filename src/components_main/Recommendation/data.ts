@@ -1,0 +1,51 @@
+export const mockRecommendations = [
+  {
+    id: '1',
+    imageUrl: 'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Kool & The Gang',
+    category: 'Music',
+    location: 'Berlin Arena',
+  },
+  {
+    id: '2',
+    imageUrl: 'https://images.pexels.com/photos/102127/pexels-photo-102127.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Art Expo',
+    category: 'Exhibitions / Art',
+    location: 'Gallery XX',
+  },
+  {
+    id: '3',
+    imageUrl: 'https://images.pexels.com/photos/713149/pexels-photo-713149.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Stand-up Night',
+    category: 'Theatre & Stand-up',
+    location: 'Prague Comedy Club',
+  },
+  {
+    id: '4',
+    imageUrl: 'https://images.pexels.com/photos/3184186/pexels-photo-3184186.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Foodie Fest',
+    category: 'Food & Drinks',
+    location: 'Brno Square',
+  },
+  {
+    id: '5',
+    imageUrl: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Yoga in the Park',
+    category: 'Wellness / Health',
+    location: 'Letná Park',
+  },
+  {
+    id: '6',
+    imageUrl: 'https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&h=300',
+    title: 'Science Talk: Future Tech',
+    category: 'Talks & Lectures',
+    location: 'Tech University Hall',
+  },
+  {
+    id: '7',
+    imageUrl: 'https://i.imgur.com/0rVeh4A.jpg',
+    title: 'Kids Fun Day',
+    category: 'Family Friendly',
+    location: 'Children’s Museum',
+  },
+];

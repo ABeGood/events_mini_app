@@ -21,6 +21,7 @@ interface BottomSheetProps {
     selectedFilters: { [key: string]: string[] };
     onToggleFilter: (category: string, item: string) => void;
     eventsCount: number;
+    onOpenSearch: () => void; // Добавили onOpenSearch
 }
 
 export const BottomSheet: FC<BottomSheetProps> = ({
@@ -32,7 +33,8 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     eventCategories,
     selectedFilters,
     onToggleFilter,
-    eventsCount
+    eventsCount,
+    onOpenSearch // Добавили
 }) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
     const handleRef = useRef<HTMLDivElement | null>(null);
