@@ -2,7 +2,6 @@ import { FC } from 'react';
 import './SearchOverlay.css';
 import { Search } from 'lucide-react';
 
-
 interface SearchOverlayProps {
     isOpen: boolean;
     onClose: () => void;
@@ -16,7 +15,41 @@ const mockCategories = [
     { emoji: '⚽', title: 'Sports' },
     { emoji: '🎡', title: 'Festivals' },
     { emoji: '🛍️', title: 'Markets' },
-    { emoji: '🍷', title: 'Wine & Food' }
+    { emoji: '🍷', title: 'Wine & Food' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🍷', title: 'Wine & Food' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🍷', title: 'Wine & Food' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
+    { emoji: '🎵', title: 'Music' },
+    { emoji: '🎨', title: 'Art' },
+    { emoji: '⚽', title: 'Sports' },
+    { emoji: '🎡', title: 'Festivals' },
+    { emoji: '🛍️', title: 'Markets' },
 ];
 
 export const SearchOverlay: FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
@@ -25,24 +58,22 @@ export const SearchOverlay: FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
             <div className="overlay-header">
                 <div className="search-input-container">
                     <Search size={20} color="#888" style={{ marginRight: '8px' }} />
-                    <input
-                        type="text"
-                        placeholder="Search for event"
-                    />
+                    <input type="text" placeholder="Search for event" />
                 </div>
-
                 <button onClick={onClose} className="close-btn">✕</button>
             </div>
 
             <div className="section-title">Popular categories</div>
 
-            <div className="category-list">
-                {mockCategories.map((item) => (
-                    <div key={item.title} className="category-item">
-                        <span className="emoji">{item.emoji}</span>
-                        <span className="title">{item.title}</span>
-                    </div>
-                ))}
+            <div className="category-scroll">
+                <div className="category-list">
+                    {mockCategories.map((item) => (
+                        <div key={item.title} className="category-item">
+                            <span className="emoji">{item.emoji}</span>
+                            <span className="title">{item.title}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

@@ -1,0 +1,25 @@
+/* src/components_main/UserLocationMarker/UserLocationMarker.module.css */
+
+.userMarker {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #3B82F6;
+  border: 2px solid white;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+}
+
+.userMarker::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 70px;
+  background: linear-gradient(to top, rgba(59, 130, 246, 0.25), transparent);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  pointer-events: none;
+  z-index: -1;
+}
