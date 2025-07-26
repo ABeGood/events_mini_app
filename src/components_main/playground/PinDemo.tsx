@@ -3,7 +3,7 @@ import Pin from '../../components/Pin/Pin';
 import UserLocationMarker from '@/components_main/UserLocationMarker/UserLocationMarker';
 import styles from './PinDemo.module.css';
 import { LocateButton } from '../LocateButton/LocateButton';
-import BottomSheetContainer from '../BottomSheetContainer/BottomSheetContainer';
+import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContainer/BottomSheetContainer';
 import DateSelector from '@/components_main/DateItem/DateSelector';
 import SearchBar from '@/components_main/SearchBar/SearchBar';
 import FilterChip from '@/components_main/FilterChip/FilterChip';

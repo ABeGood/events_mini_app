@@ -1,22 +1,41 @@
 // src/pages/IndexPage/IndexPage.tsx
 import { useEffect, useState } from 'react';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
-import { BottomSheet } from '../../components/BottomSheet/BottomSheet';
+// import { BottomSheet } from '../../components/BottomSheet/BottomSheet-1';
+import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContainer/BottomSheetContainer';
+import DateSelector from '@/components_main/DateItem/DateSelector';
+import SearchBar from '@/components_main/SearchBar/SearchBar';
+import FilterChip from '@/components_main/FilterChip/FilterChip';
+import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
+import RecommendationList from '@/components_main/Recommendation/RecommendationList';
 import { BackendTestButton } from '../../components/BackendTestButton/BackendTestButton';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
 import { useBackendApi } from '../../hooks/backendApi';
 import { useTelegramApp } from '../../hooks/useTelegramApp';
-import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
-import { SearchOverlay } from '../../components/SearchOverlay/SearchOverlay';
 // import { LocateButton } from '../../components/LocateButton/LocateButton';
+import { addDays, format, isToday, isWeekend } from 'date-fns';
+import { DateInfo } from '../../components_main/DateItem/DateSelector';
+import { ru } from 'date-fns/locale';
 import './IndexPage.css';
 
+const categories = [
+  { label: 'Music', key: 'music' },
+  { label: 'Theatre & Stand-up', key: 'theatreandstandup' },
+  { label: 'Sports', key: 'sports' },
+  { label: 'Exhibitions / Art', key: 'exhibitionsart' },
+  { label: 'Festivals & Markets', key: 'festivalsmarkets' },
+  { label: 'Wellness / Health', key: 'wellnesshealth' },
+  { label: 'Family Friendly', key: 'familyfriendly' },
+  { label: 'Talks & Lectures', key: 'talkslectures' },
+  { label: 'Food & Drinks', key: 'fooddrinks' },
+];
+
 export const IndexPage = () => {
-  const [sheetPosition, setSheetPosition] = useState(0);
+  // const [sheetPosition, setSheetPosition] = useState(0);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-  const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
+  // const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   // const mapRef = useRef<maplibregl.Map | undefined>(undefined);
@@ -45,16 +64,16 @@ export const IndexPage = () => {
     initializeTelegramApp();
   }, [initializeTelegramApp]);
 
-  const handleSheetPositionChange = (position: number) => {
-    const isOpening = position > sheetPosition;
-    setSheetPosition(position);
+  // const handleSheetPositionChange = (position: number) => {
+  //   const isOpening = position > sheetPosition;
+  //   setSheetPosition(position);
 
-    if (isOpening && position === 1) {
-      triggerHaptic('impact', 'medium');
-    } else if (!isOpening && position === 0) {
-      triggerHaptic('impact', 'light');
-    }
-  };
+  //   if (isOpening && position === 1) {
+  //     triggerHaptic('impact', 'medium');
+  //   } else if (!isOpening && position === 0) {
+  //     triggerHaptic('impact', 'light');
+  //   }
+  // };
 
   const toggleChip = (chip: string) => {
     setSelectedChips(prev =>
@@ -63,15 +82,15 @@ export const IndexPage = () => {
     triggerHaptic('selection');
   };
 
-  const toggleFilter = (category: string, item: string) => {
-    setSelectedFilters(prev => {
-      const current = prev[category] || [];
-      const exists = current.includes(item);
-      const updated = exists ? current.filter(i => i !== item) : [...current, item];
-      triggerHaptic('selection');
-      return { ...prev, [category]: updated };
-    });
-  };
+  // const toggleFilter = (category: string, item: string) => {
+  //   setSelectedFilters(prev => {
+  //     const current = prev[category] || [];
+  //     const exists = current.includes(item);
+  //     const updated = exists ? current.filter(i => i !== item) : [...current, item];
+  //     triggerHaptic('selection');
+  //     return { ...prev, [category]: updated };
+  //   });
+  // };
 
   // const handleLocateClick = () => {
   //   if (userCoords && mapRef.current) {
@@ -85,6 +104,33 @@ export const IndexPage = () => {
   //     console.warn('User position not ready yet');
   //   }
   // };
+
+  const generateDateRange = (daysBefore: number, daysAfter: number): DateInfo[] => {
+    const today = new Date();
+    const dates: DateInfo[] = [];
+
+    // Generate range from today-n to today+n
+    for (let i = -daysBefore; i <= daysAfter; i++) {
+      const currentDate = addDays(today, i);
+      const dateString = format(currentDate, 'yyyy-MM-dd');
+
+      dates.push({
+        date: dateString,
+        dayLabel: format(currentDate, 'EEE', { locale: ru }), // Mon, Tue, etc.
+        dayNumber: parseInt(format(currentDate, 'd')), // Day of month
+        isToday: isToday(currentDate),
+        isWeekend: isWeekend(currentDate)
+      });
+    }
+
+    return dates;
+  };
+
+  const dynamicDates = generateDateRange(7, 7);
+
+  // Set today as selected date
+  const todayString = format(new Date(), 'yyyy-MM-dd');
+  const [selectedDate, setSelectedDate] = useState(todayString);
 
   return (
     <div className="telegram-app-container">
@@ -116,23 +162,39 @@ export const IndexPage = () => {
         error={error}
       />
 
-      <BottomSheet
-        isOpen={sheetPosition === 1}
-        onPositionChange={handleSheetPositionChange}
-        allChips={FILTER_CHIPS}
-        selectedChips={selectedChips}
-        onToggleChip={toggleChip}
-        eventCategories={EVENT_CATEGORIES}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        eventsCount={apiEvents.length}
-        onOpenSearch={() => setIsSearchOpen(true)}
-      />
+      <BottomSheetContainer>
+        <DateSelector
+          dates={dynamicDates}
+          selectedDate={selectedDate}
+          onSelect={setSelectedDate}
+        />
 
-      <SearchOverlay
+        <SearchBar onClick={() => { }} />
+
+
+
+        <FilterHeader count={123} />
+
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '12px 0' }}>
+          {categories.map(({ label, key }) => (
+            <FilterChip
+              key={key}
+              label={label}
+              colorClass={key}
+              selected={selectedChips.includes(label)}
+              onClick={() => toggleChip(label)}
+            />
+          ))}
+        </div>
+
+        <RecommendationList />
+      </BottomSheetContainer>
+
+      {/* <SearchOverlay
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-      />
+      /> */}
     </div>
   );
 };

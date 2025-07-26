@@ -4,7 +4,7 @@ import DateItem from './DateItem';
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-interface DateInfo {
+export interface DateInfo {
   date: string;
   dayLabel: string;
   dayNumber: number;
