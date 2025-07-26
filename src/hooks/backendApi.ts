@@ -103,27 +103,27 @@ const adaptApiEventsToBackendEvents = (apiEvents: any[]): BackendEvent[] => {
                     if (genre) {
                         const lowerGenre = genre.toLowerCase();
                         if (['rock', 'pop', 'jazz', 'classical', 'electronic', 'hip-hop', 'country'].includes(lowerGenre)) {
-                            return 'Music';
+                            return 'music';
                         }
                     }
 
                     if (segment) {
                         const lowerSegment = segment.toLowerCase();
                         if (lowerSegment.includes('hudba') || lowerSegment.includes('music')) {
-                            return 'Music';
+                            return 'music';
                         }
                         if (lowerSegment.includes('sport')) {
-                            return 'Sports';
+                            return 'sports';
                         }
                         if (lowerSegment.includes('theatre') || lowerSegment.includes('art')) {
-                            return 'Arts & Theatre';
+                            return 'arts_and_theatre';
                         }
                         if (classifications.family) {
-                            return 'Family';
+                            return 'family';
                         }
                     }
 
-                    return 'Other';
+                    return 'other';
                 };
 
                 const getDescription = (event: any): string => {

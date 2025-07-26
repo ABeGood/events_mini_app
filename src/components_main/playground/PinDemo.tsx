@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Pin from '../Pin/Pin';
+import Pin from '../../components/Pin/Pin';
 import UserLocationMarker from '@/components_main/UserLocationMarker/UserLocationMarker';
 import styles from './PinDemo.module.css';
 import { LocateButton } from '../LocateButton/LocateButton';
@@ -38,10 +38,9 @@ const categories = [
 
 const PinDemo: React.FC = () => {
   const [zoom, setZoom] = useState(11);
-  const [category, setCategory] = useState('Music');
+  const [category] = useState('Music');
   const [selectedDate, setSelectedDate] = useState('2025-07-15');
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-  //const [searchValue, setSearchValue] = useState('');
 
   const toggleChip = (chip: string) => {
     setSelectedChips(prev =>

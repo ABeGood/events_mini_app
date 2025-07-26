@@ -34,7 +34,7 @@ export const BottomSheet: FC<BottomSheetProps> = ({
     selectedFilters,
     onToggleFilter,
     eventsCount,
-    onOpenSearch // Добавили
+    // onOpenSearch // Добавили
 }) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
     const handleRef = useRef<HTMLDivElement | null>(null);

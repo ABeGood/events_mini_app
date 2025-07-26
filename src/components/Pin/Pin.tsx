@@ -2,17 +2,7 @@ import React from 'react';
 import PinDot from './PinDot';
 import PinPhoto from './PinPhoto';
 import PinExtended from './PinExtended';
-
-type Category =
-  | 'music'
-  | 'theatre'
-  | 'sports'
-  | 'art'
-  | 'festivals'
-  | 'wellness'
-  | 'family'
-  | 'talks'
-  | 'food';
+import { Category } from './../../types/event';
 
 interface PinProps {
   zoomLevel: number;

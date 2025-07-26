@@ -2,9 +2,32 @@
 import { FC, useRef, useEffect, useMemo } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { CATEGORY_COLORS } from '../../constants/filterConstants';
 import './MapComponent.css';
 import { BackendEvent } from '../../types/event';
+import { createRoot } from 'react-dom/client';
+import Pin from '../../components/Pin/Pin';
+import { Category } from './../../types/event';
+
+function createPinElement(
+    zoomLevel: number,
+    category: Category,
+    avatarUrl: string,
+    name: string
+): HTMLElement {
+    const container = document.createElement('div');
+    const root = createRoot(container);
+
+    root.render(
+        <Pin
+            zoomLevel={zoomLevel}
+            category={category}
+            avatarUrl={avatarUrl}
+            name={name}
+        />
+    );
+
+    return container;
+}
 
 interface MapComponentProps {
     lng?: number;
@@ -29,13 +52,6 @@ export const MapComponent: FC<MapComponentProps> = ({
     const routeMarkersRef = useRef<maplibregl.Marker[]>([]);
     const eventMarkersRef = useRef<maplibregl.Marker[]>([]);
     const userPosition = useRef<[number, number]>([lng, lat]);
-
-    // Debug logging
-    useEffect(() => {
-        console.log('MapComponent - received apiEvents:', apiEvents);
-        console.log('MapComponent - received backendStatus:', backendStatus);
-        console.log('MapComponent - events count:', apiEvents?.length || 0);
-    }, [apiEvents, backendStatus]);
 
     const events: BackendEvent[] = useMemo(() => {
         if (!Array.isArray(apiEvents)) {
@@ -107,9 +123,9 @@ export const MapComponent: FC<MapComponentProps> = ({
                 el.style.backgroundRepeat = 'no-repeat';
                 el.style.transformOrigin = 'center center';
 
-                    const userMarker = new maplibregl.Marker({ element: el })
-                        .setLngLat([userLng, userLat])
-                        .addTo(map.current!);
+                const userMarker = new maplibregl.Marker({ element: el })
+                    .setLngLat([userLng, userLat])
+                    .addTo(map.current!);
 
                 navigator.geolocation.watchPosition(
                     (pos) => {
@@ -173,30 +189,25 @@ export const MapComponent: FC<MapComponentProps> = ({
             return;
         }
 
-        console.log('Adding', events.length, 'event markers');
+        const currentZoom = map.current!.getZoom();
 
+        console.log('Adding', events.length, 'event markers');
         events.forEach((e, index) => {
             console.log(`Adding marker ${index} for event:`, e);
 
-            const el = document.createElement('div');
-            el.className = 'event-marker';
-            el.style.borderColor = CATEGORY_COLORS[e.category] || '#1D965C';
-
-            const img = document.createElement('img');
-            img.src = e.image; // AG: huevo
-            img.alt = 'Event';
-            // img.onerror = () => {
-            //     img.src = 'https://placekitten.com/200/200';
-            // };
-
-            el.appendChild(img);
+            const el = createPinElement(
+                currentZoom,
+                e.category as Category,
+                e.image,
+                e.title || 'Event'
+            );
 
             // Route functionality (unchanged)
             el.addEventListener('click', () => {
                 const [fromLng, fromLat] = userPosition.current;
                 const MAPBOX_TOKEN = 'pk.eyJ1IjoianBlZ3R1cmJvIiwiYSI6ImNtYzJndXl4bzA3azEyanNrNGh0a20xN3EifQ.hjDsgozZ5D4UrYZlNSa2Ag';
 
-                fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${fromLng},${fromLat};${e.location.lat},${e.location.long}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
+                fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${fromLng},${fromLat};${e.location.long},${e.location.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
                     .then(res => res.json())
                     .then(data => {
                         const route = data.routes[0]?.geometry;
@@ -262,6 +273,111 @@ export const MapComponent: FC<MapComponentProps> = ({
         });
     }, [events]);
 
+    useEffect(() => {
+        if (!map.current) return;
+
+        const handleZoomEnd = () => {
+            const currentZoom = map.current!.getZoom();
+
+            // Store current events and positions
+            const currentEvents = eventMarkersRef.current.map((marker, index) => ({
+                event: events[index],
+                position: marker.getLngLat()
+            }));
+
+            // Remove all existing markers
+            eventMarkersRef.current.forEach(marker => marker.remove());
+            eventMarkersRef.current = [];
+
+            // Recreate markers with new zoom level
+            currentEvents.forEach(({ event, position }) => {
+                if (event) {
+                    const newEl = createPinElement(
+                        currentZoom,
+                        event.category as Category,
+                        event.image,
+                        event.title || 'Event'
+                    );
+
+                    // Re-add click event with full routing logic
+                    newEl.addEventListener('click', () => {
+                        const [fromLng, fromLat] = 
+                        userPosition.current;
+                        const MAPBOX_TOKEN = 'pk.eyJ1IjoianBlZ3R1cmJvIiwiYSI6ImNtYzJndXl4bzA3azEyanNrNGh0a20xN3EifQ.hjDsgozZ5D4UrYZlNSa2Ag';
+
+                        fetch(`https://api.mapbox.com/directions/v5/mapbox/walking/${fromLng},${fromLat};${event.location.long},${event.location.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                const route = data.routes[0]?.geometry;
+                                const duration = data.routes[0]?.duration;
+
+                                if (!route) {
+                                    console.warn('No route found');
+                                    return;
+                                }
+
+                                routeMarkersRef.current.forEach(marker => marker.remove());
+                                routeMarkersRef.current = [];
+
+                                setTimeout(() => {
+                                    route.coordinates.forEach((coord: [number, number], index: number) => {
+                                        if (index % 1 === 0) {
+                                            const dot = document.createElement('div');
+                                            dot.className = 'route-dot';
+                                            dot.style.width = '10px';
+                                            dot.style.height = '10px';
+                                            dot.style.borderRadius = '50%';
+                                            dot.style.background = '#1D96FF';
+                                            dot.style.boxShadow = '0 0 4px rgba(0,0,0,0.4)';
+                                            dot.style.opacity = '0.9';
+
+                                            const marker = new maplibregl.Marker({ element: dot })
+                                                .setLngLat(coord)
+                                                .addTo(map.current!);
+
+                                            routeMarkersRef.current.push(marker);
+                                        }
+                                    });
+
+                                    const label = document.createElement('div');
+                                    label.className = 'route-label';
+                                    label.style.padding = '6px 10px';
+                                    label.style.borderRadius = '14px';
+                                    label.style.background = '#FFFFFF';
+                                    label.style.color = '#2F313F';
+                                    label.style.fontSize = '14px';
+                                    label.style.fontWeight = '600';
+                                    label.style.boxShadow = '0 2px 6px rgba(144, 144, 144, 0.3)';
+                                    label.innerText = `🚶‍♂️ ${Math.round(duration / 60)} мин`;
+
+                                    const labelMarker = new maplibregl.Marker({ element: label })
+                                        .setLngLat({ lon: event.location.long, lat: event.location.lat })
+                                        .addTo(map.current!);
+
+                                    routeMarkersRef.current.push(labelMarker);
+                                }, 300);
+                            })
+                            .catch(err => {
+                                console.error('Directions error:', err);
+                            });
+                    });
+
+                    const newMarker = new maplibregl.Marker({ element: newEl })
+                        .setLngLat(position)
+                        .addTo(map.current!);
+
+                    eventMarkersRef.current.push(newMarker);
+                }
+            });
+        };
+
+        map.current.on('zoomend', handleZoomEnd);
+
+        return () => {
+            map.current?.off('zoomend', handleZoomEnd);
+        };
+    }, [events]);
+
     // Enhanced loading and error states
     if (backendStatus === 'loading') {
         return (
@@ -282,4 +398,3 @@ export const MapComponent: FC<MapComponentProps> = ({
 
         return <div ref={mapContainer} className="map-container" />;
     }
-);

@@ -87,27 +87,27 @@ export interface EventCategory {
 // Predefined categories based on Ticketmaster data
 export const EVENT_CATEGORIES: Record<string, EventCategory> = {
     MUSIC: {
-        title: 'Music',
+        title: 'music',
         color: '#FF6B6B',
         items: ['Rock', 'Pop', 'Jazz', 'Classical', 'Electronic', 'Hip-Hop', 'Country'] as const
     },
     SPORTS: {
-        title: 'Sports',
+        title: 'sports',
         color: '#4ECDC4',
         items: ['Football', 'Basketball', 'Hockey', 'Tennis', 'Baseball', 'Soccer'] as const
     },
     ARTS: {
-        title: 'Arts & Theatre',
+        title: 'arts_and_theatre',
         color: '#45B7D1',
         items: ['Theatre', 'Dance', 'Opera', 'Comedy', 'Musical'] as const
     },
     FAMILY: {
-        title: 'Family',
+        title: 'family',
         color: '#96CEB4',
         items: ['Kids', 'Family', 'Educational', 'Circus'] as const
     },
     OTHER: {
-        title: 'Other',
+        title: 'other',
         color: '#FECA57',
         items: ['Conference', 'Exhibition', 'Festival', 'Miscellaneous'] as const
     }
@@ -154,3 +154,14 @@ export interface EventDetail extends BackendEvent {
     isBookmarked?: boolean;
     attendeeCount?: number;
 }
+
+export type Category =
+  | 'music'
+  | 'theatre'
+  | 'sports'
+  | 'art'
+  | 'festivals'
+  | 'wellness'
+  | 'family'
+  | 'talks'
+  | 'food';
