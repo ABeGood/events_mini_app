@@ -52,7 +52,9 @@ export const IndexPage = () => {
   const {
     initializeTelegramApp,
     triggerHaptic,
-    disableAppSwipes
+    disableAppSwipes,
+    preventAppSwipes,
+    isIPhone
   } = useTelegramApp();
 
   // Debug logging
@@ -64,9 +66,32 @@ export const IndexPage = () => {
 
   // Initialize Telegram WebApp once on mount
   useEffect(() => {
-    initializeTelegramApp();
-    disableAppSwipes(); // Disable Telegram swipe-to-minimize
-  }, [initializeTelegramApp, disableAppSwipes]);
+    const initializeApp = async () => {
+      // Initialize Telegram WebApp first
+      const telegramInitialized = initializeTelegramApp();
+
+      // Small delay to ensure Telegram WebApp is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Disable swipes (more aggressive on iPhone)
+      disableAppSwipes();
+
+      // iPhone-specific: Enable comprehensive swipe prevention
+      if (isIPhone()) {
+        preventAppSwipes(true);
+
+        // Additional iPhone-specific setup
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        document.body.style.overscrollBehavior = 'none';
+      }
+
+      console.log(`App initialized - Telegram: ${telegramInitialized}, iPhone: ${isIPhone()}`);
+    };
+
+    initializeApp();
+  }, [initializeTelegramApp, disableAppSwipes, preventAppSwipes, isIPhone]);
   // const handleSheetPositionChange = (position: number) => {
   //   const isOpening = position > sheetPosition;
   //   setSheetPosition(position);
