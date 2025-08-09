@@ -105,12 +105,12 @@ export const IndexPage = () => {
   //   }
   // };
 
-  const generateDateRange = (daysBefore: number, daysAfter: number): DateInfo[] => {
+  const generateDateRange = (daysAfter: number): DateInfo[] => {
     const today = new Date();
     const dates: DateInfo[] = [];
 
     // Generate range from today-n to today+n
-    for (let i = -daysBefore; i <= daysAfter; i++) {
+    for (let i = 0; i <= daysAfter; i++) {
       const currentDate = addDays(today, i);
       const dateString = format(currentDate, 'yyyy-MM-dd');
 
@@ -126,7 +126,7 @@ export const IndexPage = () => {
     return dates;
   };
 
-  const dynamicDates = generateDateRange(7, 7);
+  const dynamicDates = generateDateRange(30);
 
   // Set today as selected date
   const todayString = format(new Date(), 'yyyy-MM-dd');
@@ -170,12 +170,7 @@ export const IndexPage = () => {
         />
 
         <SearchBar onClick={() => { }} />
-
-
-
         <FilterHeader count={123} />
-
-
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '12px 0' }}>
           {categories.map(({ label, key }) => (
             <FilterChip

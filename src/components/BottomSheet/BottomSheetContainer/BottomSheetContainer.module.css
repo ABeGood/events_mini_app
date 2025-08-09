@@ -1,16 +1,16 @@
 /* src/components/BottomSheet/BottomSheetContainer.module.css */
 
-.sheet { 
+.sheet {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background: white;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-radius: 20px 20px 0 0;
   padding: 12px 12px 32px;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.15);
   z-index: 10;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   max-height: 85vh;
   overflow-y: auto;
 }
@@ -21,4 +21,78 @@
   background: #D1D5DB;
   border-radius: 2px;
   margin: 0 auto 12px;
+}
+
+/* Remove base transforms - handled by JavaScript now */
+.sheet.collapsed {
+  /* transform is now handled in getTransform() */
+}
+
+.sheet.expanded {
+  /* transform is now handled in getTransform() */
+}
+
+.sheet.dragging {
+  transition: none;
+}
+
+.dragHandle {
+  padding: 12px 0 8px 0;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandle:hover .dragIndicator {
+  background: #9ca3af;
+}
+
+.content {
+  padding: 0 16px 16px 16px;
+  max-height: calc(80vh - 60px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scrolling for content */
+.content::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Prevent text selection during drag */
+.sheet.dragging * {
+  user-select: none;
+  pointer-events: none;
+}
+
+.sheet.dragging .dragHandle {
+  pointer-events: auto;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .sheet {
+    max-height: 85vh;
+  }
+
+  .content {
+    max-height: calc(85vh - 60px);
+  }
+}
+
+/* Animation for position changes - now handled in JavaScript */
+.sheet:not(.dragging) {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
