@@ -8,7 +8,6 @@ import SearchBar from '@/components_main/SearchBar/SearchBar';
 import FilterChip from '@/components_main/FilterChip/FilterChip';
 import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
 import RecommendationList from '@/components_main/Recommendation/RecommendationList';
-import { BackendTestButton } from '../../components/BackendTestButton/BackendTestButton';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
 import { useBackendApi } from '../../hooks/backendApi';
@@ -134,26 +133,15 @@ export const IndexPage = () => {
 
   return (
     <div className="telegram-app-container">
-      <BackendTestButton
-        status={backendStatus}
-        onTest={fetchEvents}
+      <EventsTestButton
+        status={backendStatus} // Use same status
+        onFetchEvents={fetchEvents}
       />
 
       <BackendStatus
         status={backendStatus}
         message={backendMessage || error || 'Ready'}
       />
-
-      <EventsTestButton
-        status={backendStatus} // Use same status
-        onFetchEvents={fetchEvents}
-      />
-
-      {/* <EventsStatus
-        status={backendStatus} // Use same status
-        events={apiEvents}
-        eventsCount={apiEvents.length}
-      /> */}
 
       {/* Pass the shared state to MapComponent */}
       <MapComponent

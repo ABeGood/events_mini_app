@@ -2,8 +2,8 @@
 
 .backend-status {
     position: absolute;
-    top: 60px;
-    left: 10px;
+    top: 10px;
+    left: 120px;
     right: 10px;
     z-index: 1000;
     padding: 12px;
