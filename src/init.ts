@@ -12,7 +12,6 @@ import {
   themeParamsState,
   retrieveLaunchParams,
   emitEvent,
-  requestFullscreen,
 } from '@telegram-apps/sdk-react';
 
 /**
@@ -27,22 +26,11 @@ export async function init(options: {
   setDebug(options.debug);
   initSDK();
 
-  // ⬇️ фолбэк на случай, если бот не открыл fullscreen или клиент позволяет запрос из веба
-  try {
-    if (requestFullscreen?.isAvailable?.()) {
-      await requestFullscreen();
-    } else {
-      // старые клиенты / запасной вариант
-      (window as any)?.Telegram?.WebApp?.requestFullscreen?.();
-      (window as any)?.Telegram?.WebApp?.expand?.();
-    }
-  } catch { }
-
-  if (options.eruda) {
-    const { default: eruda } = await import('eruda');
+  // Add Eruda if needed.
+  options.eruda && void import('eruda').then(({ default: eruda }) => {
     eruda.init();
     eruda.position({ x: window.innerWidth - 50, y: 0 });
-  }
+  });
 
   // Telegram for macOS has a ton of bugs, including cases, when the client doesn't
   // even response to the "web_app_request_theme" method. It also generates an incorrect
