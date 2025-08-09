@@ -192,7 +192,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     // Combine base position with drag offset
     if (position === 'collapsed') {
-      return `translateY(calc(100% - 80px + ${effectiveDragOffset}px))`;
+      return `translateY(calc(100% - 140px + ${effectiveDragOffset}px))`;
     } else {
       return `translateY(${effectiveDragOffset}px)`;
     }
