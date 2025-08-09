@@ -75,32 +75,6 @@ export const useTelegramApp = () => {
         }
     }, [getTelegramWebApp]);
 
-    // Enhanced iPhone-specific swipe prevention
-    const preventDefaultTouch = useCallback((e: TouchEvent) => {
-        // More aggressive prevention for iPhone
-        if (isIPhone()) {
-            const touch = e.touches?.[0] || e.changedTouches?.[0];
-            if (touch) {
-                // Prevent any downward swipe that starts in top 20% of screen
-                const startY = touch.clientY;
-                const isTopArea = startY < window.innerHeight * 0.2;
-
-                // Also prevent swipes starting from bottom sheet area
-                const isBottomArea = startY > window.innerHeight * 0.5;
-
-                if (isTopArea || isBottomArea) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        } else {
-            // Original logic for other platforms
-            const touch = e.touches?.[0] || e.changedTouches?.[0];
-            if (touch && touch.clientY > window.innerHeight * 0.6) {
-                e.preventDefault();
-            }
-        }
-    }, [isIPhone]);
 
     // Track swipe direction for better prevention
     let touchStartY = 0;
@@ -201,22 +175,13 @@ export const useTelegramApp = () => {
                 // Enhanced iPhone handling
                 document.addEventListener('touchstart', handleTouchStart, { passive: false });
                 document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                document.addEventListener('touchend', preventDefaultTouch, { passive: false });
-            } else {
-                // Standard handling for other platforms
-                document.addEventListener('touchstart', preventDefaultTouch, { passive: false });
-                document.addEventListener('touchmove', preventDefaultTouch, { passive: false });
-                document.addEventListener('touchend', preventDefaultTouch, { passive: false });
             }
         } else {
             // Remove all event listeners
             document.removeEventListener('touchstart', handleTouchStart);
-            document.removeEventListener('touchstart', preventDefaultTouch);
             document.removeEventListener('touchmove', handleTouchMove);
-            document.removeEventListener('touchmove', preventDefaultTouch);
-            document.removeEventListener('touchend', preventDefaultTouch);
         }
-    }, [handleTouchStart, handleTouchMove, preventDefaultTouch, isIPhone]);
+    }, [handleTouchStart, handleTouchMove, isIPhone]);
 
     // Auto-enable comprehensive swipe prevention on mount for iPhone
     useEffect(() => {
