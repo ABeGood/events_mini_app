@@ -1,11 +1,11 @@
 // src/pages/IndexPage/IndexPage.tsx
 import { useEffect, useState } from 'react';
 import { MapComponent } from '../../components/MapComponent/MapComponent';
-// import { BottomSheet } from '../../components/BottomSheet/BottomSheet-1';
 import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContainer/BottomSheetContainer';
-import DateSelector from '@/components_main/DateItem/DateSelector';
-import SearchBar from '@/components_main/SearchBar/SearchBar';
-import FilterChip from '@/components_main/FilterChip/FilterChip';
+import DateSelector from '@/components/DateItem/DateSelector';
+import SearchBar from '@/components/SearchBar/SearchBar';
+import SearchOverlay from '@/components/SearchOverlay/SearchOverlay';
+import FilterChip from '@/components/FilterChip/FilterChip';
 import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
 import RecommendationList from '@/components_main/Recommendation/RecommendationList';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
@@ -14,7 +14,7 @@ import { useBackendApi } from '../../hooks/backendApi';
 import { useTelegramApp } from '../../hooks/useTelegramApp';
 // import { LocateButton } from '../../components/LocateButton/LocateButton';
 import { addDays, format, isToday, isWeekend } from 'date-fns';
-import { DateInfo } from '../../components_main/DateItem/DateSelector';
+import { DateInfo } from '../../components/DateItem/DateSelector';
 import { ru } from 'date-fns/locale';
 import './IndexPage.css';
 
@@ -34,7 +34,7 @@ export const IndexPage = () => {
   // const [sheetPosition, setSheetPosition] = useState(0);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   // const [selectedFilters, setSelectedFilters] = useState<{ [key: string]: string[] }>({});
-  // const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   // const mapRef = useRef<maplibregl.Map | undefined>(undefined);
@@ -79,6 +79,18 @@ export const IndexPage = () => {
       prev.includes(chip) ? prev.filter(c => c !== chip) : [...prev, chip]
     );
     triggerHaptic('selection');
+  };
+
+  // Handler to open search overlay
+  const handleSearchClick = () => {
+    setIsSearchOpen(true);
+    triggerHaptic('impact', 'light'); // Optional haptic feedback
+  };
+
+  // Handler to close search overlay
+  const handleSearchClose = () => {
+    setIsSearchOpen(false);
+    triggerHaptic('impact', 'light'); // Optional haptic feedback
   };
 
   // const toggleFilter = (category: string, item: string) => {
@@ -157,7 +169,7 @@ export const IndexPage = () => {
           onSelect={setSelectedDate}
         />
 
-        <SearchBar onClick={() => { }} />
+        <SearchBar onClick={handleSearchClick} />
         <FilterHeader count={123} />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '12px 0' }}>
           {categories.map(({ label, key }) => (
@@ -174,10 +186,10 @@ export const IndexPage = () => {
         <RecommendationList />
       </BottomSheetContainer>
 
-      {/* <SearchOverlay
+      <SearchOverlay
         isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      /> */}
+        onClose={handleSearchClose}
+      />
     </div>
   );
 };

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import Pin from '../../components/Pin/Pin';
 import UserLocationMarker from '@/components_main/UserLocationMarker/UserLocationMarker';
 import styles from './PinDemo.module.css';
-import { LocateButton } from '../LocateButton/LocateButton';
+import { LocateButton } from '../../components/LocateButton/LocateButton';
 import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContainer/BottomSheetContainer';
-import DateSelector from '@/components_main/DateItem/DateSelector';
-import SearchBar from '@/components_main/SearchBar/SearchBar';
-import FilterChip from '@/components_main/FilterChip/FilterChip';
+import DateSelector from '@/components/DateItem/DateSelector';
+import SearchBar from '@/components/SearchBar/SearchBar';
+import FilterChip from '@/components/FilterChip/FilterChip';
 import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
 import RecommendationList from '@/components_main/Recommendation/RecommendationList';
 

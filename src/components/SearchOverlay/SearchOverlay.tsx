@@ -52,7 +52,7 @@ const mockCategories = [
     { emoji: '🛍️', title: 'Markets' },
 ];
 
-export const SearchOverlay: FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
+const SearchOverlay: FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
     return (
         <div className={`search-overlay ${isOpen ? 'open' : ''}`}>
             <div className="overlay-header">
@@ -78,3 +78,5 @@ export const SearchOverlay: FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
         </div>
     );
 };
+
+export default SearchOverlay;
