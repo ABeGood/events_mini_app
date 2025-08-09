@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Pin from '../../components/Pin/Pin';
-import UserLocationMarker from '@/components_main/UserLocationMarker/UserLocationMarker';
+import UserLocationMarker from '@/components/UserLocationMarker/UserLocationMarker';
 import styles from './PinDemo.module.css';
 import { LocateButton } from '../../components/LocateButton/LocateButton';
 import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContainer/BottomSheetContainer';
