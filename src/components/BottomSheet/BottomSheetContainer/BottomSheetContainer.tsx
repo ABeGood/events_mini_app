@@ -19,6 +19,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
   const [startY, setStartY] = useState(0);
   const [currentY, setCurrentY] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
+  const [hasStartedDrag, setHasStartedDrag] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -26,6 +27,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     setStartY(e.touches[0].clientY);
     setCurrentY(e.touches[0].clientY);
     setDragOffset(0);
+    setHasStartedDrag(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -36,6 +38,16 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     const deltaY = newY - startY;
     setDragOffset(deltaY);
+
+    // Only start preventing default after movement threshold is reached
+    if (!hasStartedDrag && Math.abs(deltaY) > 10) {
+      setHasStartedDrag(true);
+    }
+
+    // Prevent scrolling only after drag has started
+    if (hasStartedDrag) {
+      e.preventDefault();
+    }
   };
 
   const handleTouchEnd = () => {
@@ -43,43 +55,115 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     setIsDragging(false);
 
-    const deltaY = currentY - startY;
-    const threshold = 80; // Minimum swipe distance to trigger change
-    const velocity = Math.abs(deltaY);
+    // Only process position change if actual dragging occurred
+    if (hasStartedDrag) {
+      const deltaY = currentY - startY;
+      const threshold = 80;
+      const velocity = Math.abs(deltaY);
 
-    // Determine if position should change based on distance and direction
-    let shouldChangePosition = false;
-    let newPosition: 'collapsed' | 'expanded' = position;
+      let shouldChangePosition = false;
+      let newPosition: 'collapsed' | 'expanded' = position;
 
-    if (velocity > threshold) {
-      if (deltaY > 0 && position === 'expanded') {
-        // Swiped down while expanded - collapse
-        shouldChangePosition = true;
-        newPosition = 'collapsed';
-      } else if (deltaY < 0 && position === 'collapsed') {
-        // Swiped up while collapsed - expand
-        shouldChangePosition = true;
-        newPosition = 'expanded';
+      if (velocity > threshold) {
+        if (deltaY > 0 && position === 'expanded') {
+          shouldChangePosition = true;
+          newPosition = 'collapsed';
+        } else if (deltaY < 0 && position === 'collapsed') {
+          shouldChangePosition = true;
+          newPosition = 'expanded';
+        }
+      } else {
+        const halfwayPoint = 120;
+        if ((position === 'expanded' && deltaY > halfwayPoint) ||
+          (position === 'collapsed' && deltaY < -halfwayPoint)) {
+          shouldChangePosition = true;
+          newPosition = position === 'expanded' ? 'collapsed' : 'expanded';
+        }
       }
-    } else {
-      // If drag was less than threshold, check if we've dragged more than halfway
-      const halfwayPoint = 120;
-      if ((position === 'expanded' && deltaY > halfwayPoint) ||
-        (position === 'collapsed' && deltaY < -halfwayPoint)) {
-        shouldChangePosition = true;
-        newPosition = position === 'expanded' ? 'collapsed' : 'expanded';
-      }
-    }
 
-    if (shouldChangePosition) {
-      setPosition(newPosition);
-      onPositionChange?.(newPosition);
+      if (shouldChangePosition) {
+        setPosition(newPosition);
+        onPositionChange?.(newPosition);
+      }
     }
 
     // Reset tracking variables
     setStartY(0);
     setCurrentY(0);
     setDragOffset(0);
+    setHasStartedDrag(false);
+  };
+
+  // Container-specific handlers for collapsed state
+  const handleContainerTouchStart = (e: React.TouchEvent) => {
+    // Only handle if not starting from drag handle or interactive content
+    const target = e.target as HTMLElement;
+    if (target.closest(`.${styles.dragHandle}`) ||
+      target.closest('button') ||
+      target.closest('[role="button"]') ||
+      target.closest('input') ||
+      target.closest('select') ||
+      target.closest('[data-clickable]')) {
+      return; // Let the interactive element handle it
+    }
+
+    // Don't set isDragging immediately - wait for movement
+    setStartY(e.touches[0].clientY);
+    setCurrentY(e.touches[0].clientY);
+    setDragOffset(0);
+    setHasStartedDrag(false);
+  };
+
+  const handleContainerTouchMove = (e: React.TouchEvent) => {
+    // Only start dragging if we have a valid start position and enough movement
+    if (startY === 0) return;
+
+    const newY = e.touches[0].clientY;
+    const deltaY = newY - startY;
+
+    // Only initiate drag after significant movement (15px threshold)
+    if (!isDragging && Math.abs(deltaY) > 15) {
+      setIsDragging(true);
+      setHasStartedDrag(true);
+    }
+
+    if (isDragging) {
+      setCurrentY(newY);
+      setDragOffset(deltaY);
+      e.preventDefault(); // Only prevent default after drag starts
+    }
+  };
+
+  const handleContainerTouchEnd = () => {
+    // Only process if we actually started dragging
+    if (!isDragging) {
+      // Reset without processing - this was likely a tap
+      setStartY(0);
+      setCurrentY(0);
+      setDragOffset(0);
+      return;
+    }
+
+    handleTouchEnd();
+  };
+
+  const handleContainerMouseDown = (e: React.MouseEvent) => {
+    // Only handle if not starting from drag handle or interactive content
+    const target = e.target as HTMLElement;
+    if (target.closest(`.${styles.dragHandle}`) ||
+      target.closest('button') ||
+      target.closest('[role="button"]') ||
+      target.closest('input') ||
+      target.closest('select') ||
+      target.closest('[data-clickable]')) {
+      return; // Let the interactive element handle it
+    }
+
+    // Don't set isDragging immediately - wait for movement
+    setStartY(e.clientY);
+    setCurrentY(e.clientY);
+    setDragOffset(0);
+    setHasStartedDrag(false);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -87,6 +171,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     setStartY(e.clientY);
     setCurrentY(e.clientY);
     setDragOffset(0);
+    setHasStartedDrag(false);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -97,6 +182,11 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     const deltaY = newY - startY;
     setDragOffset(deltaY);
+
+    // Only start preventing default after movement threshold is reached
+    if (!hasStartedDrag && Math.abs(deltaY) > 10) {
+      setHasStartedDrag(true);
+    }
   };
 
   const handleMouseUp = () => {
@@ -104,38 +194,42 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     setIsDragging(false);
 
-    const deltaY = currentY - startY;
-    const threshold = 80;
-    const velocity = Math.abs(deltaY);
+    // Only process position change if actual dragging occurred
+    if (hasStartedDrag) {
+      const deltaY = currentY - startY;
+      const threshold = 80;
+      const velocity = Math.abs(deltaY);
 
-    let shouldChangePosition = false;
-    let newPosition: 'collapsed' | 'expanded' = position;
+      let shouldChangePosition = false;
+      let newPosition: 'collapsed' | 'expanded' = position;
 
-    if (velocity > threshold) {
-      if (deltaY > 0 && position === 'expanded') {
-        shouldChangePosition = true;
-        newPosition = 'collapsed';
-      } else if (deltaY < 0 && position === 'collapsed') {
-        shouldChangePosition = true;
-        newPosition = 'expanded';
+      if (velocity > threshold) {
+        if (deltaY > 0 && position === 'expanded') {
+          shouldChangePosition = true;
+          newPosition = 'collapsed';
+        } else if (deltaY < 0 && position === 'collapsed') {
+          shouldChangePosition = true;
+          newPosition = 'expanded';
+        }
+      } else {
+        const halfwayPoint = 120;
+        if ((position === 'expanded' && deltaY > halfwayPoint) ||
+          (position === 'collapsed' && deltaY < -halfwayPoint)) {
+          shouldChangePosition = true;
+          newPosition = position === 'expanded' ? 'collapsed' : 'expanded';
+        }
       }
-    } else {
-      const halfwayPoint = 120;
-      if ((position === 'expanded' && deltaY > halfwayPoint) ||
-        (position === 'collapsed' && deltaY < -halfwayPoint)) {
-        shouldChangePosition = true;
-        newPosition = position === 'expanded' ? 'collapsed' : 'expanded';
-      }
-    }
 
-    if (shouldChangePosition) {
-      setPosition(newPosition);
-      onPositionChange?.(newPosition);
+      if (shouldChangePosition) {
+        setPosition(newPosition);
+        onPositionChange?.(newPosition);
+      }
     }
 
     setStartY(0);
     setCurrentY(0);
     setDragOffset(0);
+    setHasStartedDrag(false);
   };
 
   // Mouse event listeners for desktop
@@ -149,14 +243,14 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, currentY, startY, position]);
+  }, [isDragging, currentY, startY, position, hasStartedDrag]);
 
   // Calculate transform based on drag position
   const getTransform = () => {
     // Get base transform for current position
     let baseTransform = '';
     if (position === 'collapsed') {
-      baseTransform = 'translateY(calc(100% - 140px))';
+      baseTransform = 'translateY(calc(100% - 140px))'; // Changed from 80px to 120px
     } else {
       baseTransform = 'translateY(0)';
     }
@@ -169,7 +263,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     // Apply resistance when dragging beyond bounds
     let effectiveDragOffset = dragOffset;
 
-    // Apply symmetric resistance for both states
+    // Apply resistance based on position state
     if (position === 'expanded') {
       // When expanded, prevent upward drag (attached to bottom), allow downward
       if (dragOffset < 0) {
@@ -192,7 +286,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     // Combine base position with drag offset
     if (position === 'collapsed') {
-      return `translateY(calc(100% - 140px + ${effectiveDragOffset}px))`;
+      return `translateY(calc(100% - 140px + ${effectiveDragOffset}px))`; // Changed from 80px to 120px
     } else {
       return `translateY(${effectiveDragOffset}px)`;
     }
@@ -205,13 +299,13 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       style={{
         transform: getTransform(),
         // Override CSS transitions during drag
-        transition: isDragging ? 'none' : undefined
+        transition: isDragging && hasStartedDrag ? 'none' : undefined
       }}
       // Add touch handlers to the whole container when collapsed
-      onTouchStart={position === 'collapsed' ? handleTouchStart : undefined}
-      onTouchMove={position === 'collapsed' ? handleTouchMove : undefined}
-      onTouchEnd={position === 'collapsed' ? handleTouchEnd : undefined}
-      onMouseDown={position === 'collapsed' ? handleMouseDown : undefined}
+      onTouchStart={position === 'collapsed' ? handleContainerTouchStart : undefined}
+      onTouchMove={position === 'collapsed' ? handleContainerTouchMove : undefined}
+      onTouchEnd={position === 'collapsed' ? handleContainerTouchEnd : undefined}
+      onMouseDown={position === 'collapsed' ? handleContainerMouseDown : undefined}
     >
       <div
         className={styles.dragHandle}
