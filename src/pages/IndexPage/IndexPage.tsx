@@ -6,8 +6,8 @@ import DateSelector from '@/components/DateItem/DateSelector';
 import SearchBar from '@/components/SearchBar/SearchBar';
 import SearchOverlay from '@/components/SearchOverlay/SearchOverlay';
 import FilterChip from '@/components/FilterChip/FilterChip';
-import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
-import RecommendationList from '@/components_main/Recommendation/RecommendationList';
+import FilterHeader from '@/components/FilterHeader/FilterHeader';
+import RecommendationList from '@/components/Recommendation/RecommendationList';
 import { BackendStatus } from '../../components/BackendStatus/BackendStatus';
 import { EventsTestButton } from '../../components/BackendEventsButton/BackendEventsButton';
 import { useBackendApi } from '../../hooks/backendApi';
@@ -49,7 +49,11 @@ export const IndexPage = () => {
   } = useBackendApi();
 
   // Use simplified app-level hook
-  const { initializeTelegramApp, triggerHaptic } = useTelegramApp();
+  const {
+    initializeTelegramApp,
+    triggerHaptic,
+    disableAppSwipes
+  } = useTelegramApp();
 
   // Debug logging
   useEffect(() => {
@@ -61,8 +65,8 @@ export const IndexPage = () => {
   // Initialize Telegram WebApp once on mount
   useEffect(() => {
     initializeTelegramApp();
-  }, [initializeTelegramApp]);
-
+    disableAppSwipes(); // Disable Telegram swipe-to-minimize
+  }, [initializeTelegramApp, disableAppSwipes]);
   // const handleSheetPositionChange = (position: number) => {
   //   const isOpening = position > sheetPosition;
   //   setSheetPosition(position);

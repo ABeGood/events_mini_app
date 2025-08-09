@@ -7,8 +7,8 @@ import BottomSheetContainer from '../../components/BottomSheet/BottomSheetContai
 import DateSelector from '@/components/DateItem/DateSelector';
 import SearchBar from '@/components/SearchBar/SearchBar';
 import FilterChip from '@/components/FilterChip/FilterChip';
-import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
-import RecommendationList from '@/components_main/Recommendation/RecommendationList';
+import FilterHeader from '@/components/FilterHeader/FilterHeader';
+import RecommendationList from '@/components/Recommendation/RecommendationList';
 
 const mockDates = [
   { date: '2025-07-15', dayLabel: 'Вт', dayNumber: 15, isToday: true, isWeekend: false },
