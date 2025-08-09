@@ -130,10 +130,6 @@ export const useTelegramApp = () => {
             e.stopPropagation();
         }
 
-        // Also prevent in bottom sheet area to avoid conflicts
-        if (touch.clientY > window.innerHeight * 0.5) {
-            e.preventDefault();
-        }
     }, [isIPhone]);
 
     // Enhanced disable app swipes with iPhone-specific handling
