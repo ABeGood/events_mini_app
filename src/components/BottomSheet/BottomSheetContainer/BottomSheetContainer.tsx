@@ -207,6 +207,11 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
         // Override CSS transitions during drag
         transition: isDragging ? 'none' : undefined
       }}
+      // Add touch handlers to the whole container when collapsed
+      onTouchStart={position === 'collapsed' ? handleTouchStart : undefined}
+      onTouchMove={position === 'collapsed' ? handleTouchMove : undefined}
+      onTouchEnd={position === 'collapsed' ? handleTouchEnd : undefined}
+      onMouseDown={position === 'collapsed' ? handleMouseDown : undefined}
     >
       <div
         className={styles.dragHandle}

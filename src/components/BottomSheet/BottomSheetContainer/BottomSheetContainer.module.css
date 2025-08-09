@@ -65,6 +65,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Disable scrolling when collapsed */
+.sheet.collapsed .content {
+  overflow-y: hidden;
+}
+
 /* Smooth scrolling for content */
 .content::-webkit-scrollbar {
   width: 0;
