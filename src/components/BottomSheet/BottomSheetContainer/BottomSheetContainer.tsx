@@ -250,7 +250,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     // Get base transform for current position
     let baseTransform = '';
     if (position === 'collapsed') {
-      baseTransform = 'translateY(calc(100% - 140px))'; // Changed from 80px to 120px
+      baseTransform = 'translateY(calc(100% - 350px))'; // Changed from 80px to 120px
     } else {
       baseTransform = 'translateY(0)';
     }
@@ -286,7 +286,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
     // Combine base position with drag offset
     if (position === 'collapsed') {
-      return `translateY(calc(100% - 140px + ${effectiveDragOffset}px))`; // Changed from 80px to 120px
+      return `translateY(calc(100% - 350px + ${effectiveDragOffset}px))`; // Changed from 80px to 120px
     } else {
       return `translateY(${effectiveDragOffset}px)`;
     }
