@@ -1,5 +1,5 @@
 // src/components/BottomSheet/BottomSheetContainer.tsx
-import React, { PropsWithChildren, useState, useRef, useEffect } from 'react';
+import React, { PropsWithChildren, useState, useRef, useEffect, useCallback } from 'react';
 import styles from './BottomSheetContainer.module.css';
 
 interface BottomSheetContainerProps {
@@ -22,7 +22,29 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
   const [hasStartedDrag, setHasStartedDrag] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
 
+  // iPhone detection helper
+  const isIPhone = useCallback(() => {
+    return /iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }, []);
+
+  // Enhanced event stopping for iPhone
+  const stopEventPropagation = useCallback((e: TouchEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check if this is a native TouchEvent (has stopImmediatePropagation)
+    if ('stopImmediatePropagation' in e && typeof e.stopImmediatePropagation === 'function') {
+      e.stopImmediatePropagation();
+    }
+  }, []);
+
   const handleTouchStart = (e: React.TouchEvent) => {
+    // iPhone: Immediately claim this gesture to prevent app-level handling
+    if (isIPhone()) {
+      stopEventPropagation(e);
+    }
+    
     setIsDragging(true);
     setStartY(e.touches[0].clientY);
     setCurrentY(e.touches[0].clientY);
@@ -32,6 +54,11 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
+
+    // iPhone: Always prevent event propagation during our gesture
+    if (isIPhone()) {
+      stopEventPropagation(e);
+    }
 
     const newY = e.touches[0].clientY;
     setCurrentY(newY);
@@ -45,13 +72,18 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     }
 
     // Prevent scrolling only after drag has started
-    if (hasStartedDrag) {
+    if (hasStartedDrag || isIPhone()) {
       e.preventDefault();
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e?: React.TouchEvent) => {
     if (!isDragging) return;
+
+    // iPhone: Ensure event doesn't propagate to app-level handlers
+    if (isIPhone() && e) {
+      stopEventPropagation(e);
+    }
 
     setIsDragging(false);
 
@@ -107,6 +139,12 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       return; // Let the interactive element handle it
     }
 
+    // iPhone: Mark this area as BottomSheet territory
+    if (isIPhone()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     // Don't set isDragging immediately - wait for movement
     setStartY(e.touches[0].clientY);
     setCurrentY(e.touches[0].clientY);
@@ -117,6 +155,11 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
   const handleContainerTouchMove = (e: React.TouchEvent) => {
     // Only start dragging if we have a valid start position and enough movement
     if (startY === 0) return;
+
+    // iPhone: Always handle our events to prevent app gestures
+    if (isIPhone()) {
+      stopEventPropagation(e);
+    }
 
     const newY = e.touches[0].clientY;
     const deltaY = newY - startY;
@@ -134,7 +177,12 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     }
   };
 
-  const handleContainerTouchEnd = () => {
+  const handleContainerTouchEnd = (e: React.TouchEvent) => {
+    // iPhone: Ensure our touch end doesn't trigger app gestures
+    if (isIPhone()) {
+      stopEventPropagation(e);
+    }
+
     // Only process if we actually started dragging
     if (!isDragging) {
       // Reset without processing - this was likely a tap
@@ -144,7 +192,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       return;
     }
 
-    handleTouchEnd();
+    handleTouchEnd(e);
   };
 
   const handleContainerMouseDown = (e: React.MouseEvent) => {

@@ -81,6 +81,15 @@ export const useTelegramApp = () => {
     const handleTouchStart = useCallback((e: TouchEvent) => {
         touchStartY = e.touches[0]?.clientY || 0;
 
+        // Check if touch is within a BottomSheet component
+        const target = e.target as HTMLElement;
+        const isInBottomSheet = target.closest('[data-bottomsheet="true"]');
+        
+        // If inside BottomSheet, let it handle its own gestures
+        if (isInBottomSheet) {
+            return;
+        }
+
         // Prevent default immediately on iPhone for certain areas
         if (isIPhone()) {
             const touch = e.touches[0];
@@ -95,6 +104,15 @@ export const useTelegramApp = () => {
 
         const touch = e.touches[0];
         if (!touch) return;
+
+        // Check if touch is within a BottomSheet component
+        const target = e.target as HTMLElement;
+        const isInBottomSheet = target.closest('[data-bottomsheet="true"]');
+        
+        // If inside BottomSheet, let it handle its own gestures
+        if (isInBottomSheet) {
+            return;
+        }
 
         const deltaY = touch.clientY - touchStartY;
 
