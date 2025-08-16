@@ -25,14 +25,17 @@ export const useTelegramApp = () => {
                     webApp.disableVerticalSwipes();
                 }
 
-                console.log('Telegram WebApp initialized');
+                console.log('Telegram WebApp initialized successfully');
                 return true;
             } catch (error) {
                 console.warn('Telegram WebApp initialization failed:', error);
                 return false;
             }
         } else {
-            console.warn('Telegram WebApp not available - running in development mode?');
+            console.warn('Telegram WebApp not available. Possible reasons:');
+            console.warn('1. Running in development mode (outside Telegram)');
+            console.warn('2. Telegram script not loaded');
+            console.warn('3. App not opened through Telegram');
             return false;
         }
     }, [getTelegramWebApp]);

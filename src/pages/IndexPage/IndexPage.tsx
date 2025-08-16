@@ -17,6 +17,7 @@ import { addDays, format, isToday, isWeekend } from 'date-fns';
 import { DateInfo } from '../../components/DateItem/DateSelector';
 import { ru } from 'date-fns/locale';
 import './IndexPage.css';
+import { TelegramDebug } from '../../shared/components/TelegramDebug';
 
 const categories = [
   { label: 'Music', key: 'music' },
@@ -59,6 +60,19 @@ export const IndexPage = () => {
     console.log('IndexPage - apiEvents:', apiEvents);
     console.log('IndexPage - backendStatus:', backendStatus);
     console.log('IndexPage - events count:', apiEvents.length);
+    
+    // Telegram WebApp debug info
+    const webApp = window.Telegram?.WebApp;
+    console.log('=== TELEGRAM WEBAPP DEBUG ===');
+    console.log('WebApp available:', !!webApp);
+    if (webApp) {
+      console.log('WebApp version:', webApp.version);
+      console.log('WebApp platform:', webApp.platform);
+      console.log('disableVerticalSwipes available:', typeof webApp.disableVerticalSwipes === 'function');
+      console.log('enableVerticalSwipes available:', typeof webApp.enableVerticalSwipes === 'function');
+      console.log('WebApp object:', webApp);
+    }
+    console.log('===============================');
   }, [apiEvents, backendStatus]);
 
   // Initialize Telegram WebApp once on mount
@@ -155,6 +169,8 @@ export const IndexPage = () => {
 
   return (
     <div className="telegram-app-container">
+      <TelegramDebug />
+      
       <EventsTestButton
         status={backendStatus} // Use same status
         onFetchEvents={fetchEvents}
