@@ -24,9 +24,30 @@ export default defineConfig({
     // Using this plugin requires admin rights on the first dev-mode launch.
     // https://www.npmjs.com/package/vite-plugin-mkcert
     process.env.HTTPS && mkcert(),
+    // Custom plugin to ensure Telegram script is preserved in build
+    {
+      name: 'preserve-telegram-script',
+      transformIndexHtml: {
+        enforce: 'pre',
+        transform(html) {
+          // Ensure Telegram script has proper attributes to survive build
+          return html.replace(
+            /<script src="https:\/\/telegram\.org\/js\/telegram-web-app\.js(\?[^"]*)?"><\/script>/,
+            '<script src="https://telegram.org/js/telegram-web-app.js$1" data-preserve="true"></script>'
+          );
+        }
+      }
+    }
   ],
   build: {
     target: 'esnext',
+    rollupOptions: {
+      external: [],
+      output: {
+        // Ensure external scripts are not bundled
+        manualChunks: undefined
+      }
+    }
   },
   publicDir: './public',
   server: {

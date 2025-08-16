@@ -1,12 +1,53 @@
 // src/hooks/useTelegramApp.ts - App-level concerns only
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { TelegramWebApp } from '../types/telegram';
 
 export const useTelegramApp = () => {
+    const [isWebAppReady, setIsWebAppReady] = useState(false);
+    const [loadAttempts, setLoadAttempts] = useState(0);
+
     // Helper to safely access Telegram WebApp
     const getTelegramWebApp = useCallback((): TelegramWebApp | null => {
         return window.Telegram?.WebApp || null;
     }, []);
+
+    // Check for WebApp availability with retries
+    useEffect(() => {
+        const checkWebApp = () => {
+            const webApp = getTelegramWebApp();
+            if (webApp) {
+                console.log('✅ Telegram WebApp detected:', webApp.version);
+                setIsWebAppReady(true);
+                return true;
+            }
+            return false;
+        };
+
+        // Immediate check
+        if (checkWebApp()) return;
+
+        // Retry mechanism for script loading
+        const retryInterval = setInterval(() => {
+            setLoadAttempts(prev => prev + 1);
+            
+            if (checkWebApp()) {
+                clearInterval(retryInterval);
+                return;
+            }
+
+            // Stop retrying after 10 attempts (5 seconds)
+            if (loadAttempts >= 10) {
+                console.warn('❌ Telegram WebApp not available after 5 seconds');
+                console.warn('This usually means:');
+                console.warn('1. App is not running inside Telegram');
+                console.warn('2. Telegram script failed to load');
+                console.warn('3. Network connectivity issues');
+                clearInterval(retryInterval);
+            }
+        }, 500);
+
+        return () => clearInterval(retryInterval);
+    }, [getTelegramWebApp, loadAttempts]);
 
     // App-level Telegram setup
     const initializeTelegramApp = useCallback(() => {
@@ -99,6 +140,8 @@ export const useTelegramApp = () => {
         triggerHaptic,
         telegramUtils,
         disableVerticalSwipes,
-        enableVerticalSwipes
+        enableVerticalSwipes,
+        isWebAppReady,
+        loadAttempts
     };
 };
