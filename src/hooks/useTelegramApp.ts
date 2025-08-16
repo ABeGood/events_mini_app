@@ -20,6 +20,11 @@ export const useTelegramApp = () => {
                 // Set app ready
                 webApp.ready();
 
+                // Disable vertical swipes if available
+                if (typeof webApp.disableVerticalSwipes === 'function') {
+                    webApp.disableVerticalSwipes();
+                }
+
                 console.log('Telegram WebApp initialized');
                 return true;
             } catch (error) {
@@ -71,9 +76,26 @@ export const useTelegramApp = () => {
         };
     }, [getTelegramWebApp]);
 
+    // Helper functions for vertical swipes control
+    const disableVerticalSwipes = useCallback(() => {
+        const webApp = getTelegramWebApp();
+        if (webApp && typeof webApp.disableVerticalSwipes === 'function') {
+            webApp.disableVerticalSwipes();
+        }
+    }, [getTelegramWebApp]);
+
+    const enableVerticalSwipes = useCallback(() => {
+        const webApp = getTelegramWebApp();
+        if (webApp && typeof webApp.enableVerticalSwipes === 'function') {
+            webApp.enableVerticalSwipes();
+        }
+    }, [getTelegramWebApp]);
+
     return {
         initializeTelegramApp,
         triggerHaptic,
-        telegramUtils
+        telegramUtils,
+        disableVerticalSwipes,
+        enableVerticalSwipes
     };
 };
