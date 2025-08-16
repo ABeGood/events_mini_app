@@ -19,6 +19,8 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
   const [position, setPosition] = useState<'collapsed' | 'expanded'>(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -37,82 +39,60 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     const target = e.target as HTMLElement;
     // Only capture gestures from drag handle
     if (!target.closest(`.${styles.dragHandle}`)) return false;
+    setStartY(e.touches[0].clientY);
+    setCurrentY(e.touches[0].clientY);
+    setDragOffset(0);
     
     setIsDragging(true);
-    setDragOffset(0);
     return true; // Capture this gesture
   };
 
-  const onGestureMove = (_e: TouchEvent, state: GestureState) => {
+  const onGestureMove = (e: TouchEvent) => {
     if (!isDragging) return;
 
-    // Apply resistance based on position and direction
-    let effectiveDistance = state.gestureDistance;
-    const direction = state.gestureDirection;
+    const newY = e.touches[0].clientY;
+    setCurrentY(newY);
 
-    if (position === 'expanded') {
-      // When expanded, prevent upward drag, allow downward with resistance
-      if (direction === 'up') {
-        effectiveDistance = 0;
-      } else {
-        effectiveDistance = state.gestureDistance > 150 
-          ? 150 + (state.gestureDistance - 150) * 0.3 
-          : state.gestureDistance;
-      }
-    } else {
-      // When collapsed, allow upward drag, resist downward
-      if (direction === 'down') {
-        effectiveDistance = state.gestureDistance * 0.3;
-      } else {
-        effectiveDistance = state.gestureDistance > 150 
-          ? 150 + (state.gestureDistance - 150) * 0.3 
-          : state.gestureDistance;
-      }
-    }
-
-    setDragOffset(direction === 'down' ? effectiveDistance : -effectiveDistance);
+    const deltaY = newY - startY;
+    setDragOffset(deltaY);
   };
 
   const onGestureEnd = (_e: TouchEvent, state: GestureState) => {
     if (!isDragging) return;
 
-    setIsDragging(false);
-    setDragOffset(0);
-
-    // Determine if position should change
+    const deltaY = currentY - startY;
     const threshold = 80;
-    const halfwayPoint = 120;
-    const distance = state.gestureDistance;
-    const velocity = state.velocity || 0;
-    const direction = state.gestureDirection;
+    const velocity = Math.abs(deltaY);
 
     let shouldChangePosition = false;
     let newPosition: 'collapsed' | 'expanded' = position;
 
-    // Fast gesture (high velocity)
     if (velocity > threshold) {
-      if (direction === 'down' && position === 'expanded') {
+      if (deltaY > 0 && position === 'expanded') {
         shouldChangePosition = true;
         newPosition = 'collapsed';
-      } else if (direction === 'up' && position === 'collapsed') {
+      } else if (deltaY < 0 && position === 'collapsed') {
         shouldChangePosition = true;
         newPosition = 'expanded';
       }
-    } 
-    // Slow gesture (distance-based)
-    else if (distance > halfwayPoint) {
-      if (direction === 'down' && position === 'expanded') {
+    } else {
+      const halfwayPoint = 120;
+      if ((position === 'expanded' && deltaY > halfwayPoint) ||
+        (position === 'collapsed' && deltaY < -halfwayPoint)) {
         shouldChangePosition = true;
-        newPosition = 'collapsed';
-      } else if (direction === 'up' && position === 'collapsed') {
-        shouldChangePosition = true;
-        newPosition = 'expanded';
+        newPosition = position === 'expanded' ? 'collapsed' : 'expanded';
       }
     }
 
     if (shouldChangePosition) {
-      handlePositionChange(newPosition);
+      setPosition(newPosition);
+      onPositionChange?.(newPosition);
     }
+
+    setIsDragging(false);
+    setStartY(0);
+    setCurrentY(0);
+    setDragOffset(0);
   };
 
   // Create gesture handlers
