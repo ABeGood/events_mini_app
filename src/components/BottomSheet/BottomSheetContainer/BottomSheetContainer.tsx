@@ -96,34 +96,22 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     setDragOffset(0);
   };
 
-  // Handle content touch to trigger drag when scrolled to bottom
-  const handleContentTouchStart = (e: TouchEvent) => {
-    const target = contentRef.current;
-    if (!target || position !== 'expanded') return;
-
+  // Handle content scroll to prevent rubber band on scroll down only
+  const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const currentScrollTop = target.scrollTop;
+    const isScrollingDown = currentScrollTop > lastScrollTop.current;
     const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 1;
-    if (isAtBottom) {
-      setStartY(e.touches[0].clientY);
-      setCurrentY(e.touches[0].clientY);
-      setDragOffset(0);
+    
+    if (isScrollingDown && isAtBottom && position === 'expanded') {
+      // Prevent rubber band on scroll down when at bottom
+      target.style.overscrollBehavior = 'none';
+    } else {
+      // Allow rubber band on scroll up or when not at bottom
+      target.style.overscrollBehavior = 'auto';
     }
-  };
-
-  const handleContentTouchMove = (e: TouchEvent) => {
-    const target = contentRef.current;
-    if (!target || position !== 'expanded') return;
-
-    const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 1;
-    const touch = e.touches[0];
-    const deltaY = touch.clientY - startY;
-
-    // If at bottom and trying to scroll down further, start dragging
-    if (isAtBottom && deltaY > 10 && startY > 0) {
-      setIsDragging(true);
-      setCurrentY(touch.clientY);
-      setDragOffset(deltaY);
-      e.preventDefault();
-    }
+    
+    lastScrollTop.current = currentScrollTop;
   };
 
   // Create gesture handlers
@@ -142,22 +130,6 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       dragHandle.removeEventListener('touchstart', gestureHandlers.onTouchStart);
       dragHandle.removeEventListener('touchmove', gestureHandlers.onTouchMove);
       dragHandle.removeEventListener('touchend', gestureHandlers.onTouchEnd);
-    };
-  }, [gestureHandlers]);
-
-  // Add touch listeners to content for drag-to-collapse when at bottom
-  useEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
-
-    content.addEventListener('touchstart', handleContentTouchStart, { passive: true });
-    content.addEventListener('touchmove', handleContentTouchMove, { passive: false });
-    content.addEventListener('touchend', gestureHandlers.onTouchEnd, gestureHandlers.options);
-
-    return () => {
-      content.removeEventListener('touchstart', handleContentTouchStart);
-      content.removeEventListener('touchmove', handleContentTouchMove);
-      content.removeEventListener('touchend', gestureHandlers.onTouchEnd);
     };
   }, [gestureHandlers]);
 
@@ -197,6 +169,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       <div 
         ref={contentRef}
         className={styles.content}
+        onScroll={handleContentScroll}
       >
         {children}
       </div>
