@@ -7,9 +7,13 @@ import { useBackendApi } from '../../hooks/backendApi';
 import { FILTER_CHIPS, EVENT_CATEGORIES } from '../../constants/filterConstants';
 import { SearchOverlay } from '../../components/SearchOverlay/SearchOverlay';
 import { LocateButton } from '../../components/LocateButton/LocateButton';
+import { EventInfoSheet } from '../../components/EventInfoSheet/EventInfoSheet';
+import { EventType } from '../../types/eventTypes';
 import './IndexPage.css';
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-import maplibregl from 'maplibre-gl'; // типы
+
+import maplibregl from 'maplibre-gl';
 
 declare global {
   interface Window {
@@ -25,6 +29,14 @@ export const IndexPage = () => {
 
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const mapRef = useRef<maplibregl.Map | undefined>(undefined);
+
+  const [selectedEvent, setSelectedEvent] = useState<{
+    event: EventType;
+    routeInfo: {
+      distance: number;
+      duration: number;
+    };
+  } | null>(null);
 
   const {
     backendMessage,
@@ -67,6 +79,22 @@ export const IndexPage = () => {
     }
   };
 
+  const handleEventClick = (eventWithRoute: EventType & { distance: number; duration: number }) => {
+    console.log('Selected event:', eventWithRoute);
+
+    setSelectedEvent({
+      event: eventWithRoute,
+      routeInfo: {
+        distance: eventWithRoute.distance,
+        duration: eventWithRoute.duration
+      }
+    });
+  };
+
+  const handleCloseEventInfo = () => {
+    setSelectedEvent(null);
+  };
+
   return (
     <div className="telegram-app-container">
       <BackendTestButton
@@ -89,22 +117,33 @@ export const IndexPage = () => {
           setUserCoords(coords);
           console.log('User position updated:', coords);
         }}
+        onEventClick={handleEventClick}
       />
 
       <LocateButton onLocate={handleLocateClick} />
 
-      <BottomSheet
-        isOpen={sheetPosition === 1}
-        onPositionChange={setSheetPosition}
-        allChips={FILTER_CHIPS}
-        selectedChips={selectedChips}
-        onToggleChip={toggleChip}
-        eventCategories={EVENT_CATEGORIES}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        eventsCount={apiEvents.length}
-        onOpenSearch={() => setIsSearchOpen(true)}
-      />
+      {!selectedEvent && (
+        <BottomSheet
+          isOpen={sheetPosition === 1}
+          onPositionChange={setSheetPosition}
+          allChips={FILTER_CHIPS}
+          selectedChips={selectedChips}
+          onToggleChip={toggleChip}
+          eventCategories={EVENT_CATEGORIES}
+          selectedFilters={selectedFilters}
+          onToggleFilter={toggleFilter}
+          eventsCount={apiEvents.length}
+          onOpenSearch={() => setIsSearchOpen(true)}
+        />
+      )}
+
+      {selectedEvent && (
+        <EventInfoSheet
+          event={selectedEvent.event}
+          routeInfo={selectedEvent.routeInfo}
+          onClose={handleCloseEventInfo}
+        />
+      )}
 
       <SearchOverlay
         isOpen={isSearchOpen}

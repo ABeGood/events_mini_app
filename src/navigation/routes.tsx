@@ -5,7 +5,7 @@ import { InitDataPage } from '@/pages/InitDataPage.tsx';
 import { LaunchParamsPage } from '@/pages/LaunchParamsPage.tsx';
 import { ThemeParamsPage } from '@/pages/ThemeParamsPage.tsx';
 import { TONConnectPage } from '@/pages/TONConnectPage/TONConnectPage';
-
+import PinDemo from '@/components_main/playground/PinDemo'; // ✅ добавили
 interface Route {
   path: string;
   Component: ComponentType;
@@ -40,5 +40,10 @@ export const routes: Route[] = [
         />
       </svg>
     ),
+  },
+  {
+    path: '/demo',
+    Component: PinDemo,
+    title: 'Pin Demo',
   },
 ];

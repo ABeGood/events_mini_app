@@ -1,5 +1,8 @@
 .wrapper {
   padding: 0px;
+  margin-top: 32px;
+  margin-bottom: 24px;
+  height: auto;
 }
 
 .title {
@@ -16,6 +19,7 @@
   padding: 0;
   padding-left: 0px;
   margin-right: -12px; /* <-- Добавь вот это */
+  padding-bottom: 12px
 }
 
 

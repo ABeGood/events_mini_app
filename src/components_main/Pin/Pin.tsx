@@ -27,10 +27,10 @@ const Pin: React.FC<PinProps> = ({ zoomLevel, category, avatarUrl, name }) => {
   }
 
   if (zoomLevel < 15) {
-    return <PinPhoto avatarUrl={avatarUrl} />;
+    return <PinPhoto avatarUrl={avatarUrl} category={category} />;
   }
 
-  return <PinExtended avatarUrl={avatarUrl} name={name} />;
+  return <PinExtended avatarUrl={avatarUrl} name={name} category={category} />;
 };
 
 export default Pin;

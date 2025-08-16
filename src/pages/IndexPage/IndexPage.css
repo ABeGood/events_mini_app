@@ -6,3 +6,7 @@
     position: relative;
     overflow: hidden;
     font-family: 'Inter', sans-serif; }
+
+    body {
+  font-family: 'Inter', sans-serif;
+}

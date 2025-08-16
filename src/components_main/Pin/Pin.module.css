@@ -22,13 +22,32 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background-color: white;
   overflow: visible;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* Категориальные стили — фон и хвостик */
+.music     .photoWrapper,
+.music     .tip { background-color: #3B82F6; }
+.theatre   .photoWrapper,
+.theatre   .tip { background-color: #B91C1C; }
+.sports    .photoWrapper,
+.sports    .tip { background-color: #EF4444; }
+.art       .photoWrapper,
+.art       .tip { background-color: #EC4899; }
+.festivals .photoWrapper,
+.festivals .tip { background-color: #06B6D4; }
+.wellness  .photoWrapper,
+.wellness  .tip { background-color: #22C55E; }
+.family    .photoWrapper,
+.family    .tip { background-color: #FACC15; }
+.talks     .photoWrapper,
+.talks     .tip { background-color: #FB923C; }
+.food      .photoWrapper,
+.food      .tip { background-color: #F97316; }
 
 .avatar {
   width: 64px;
@@ -46,7 +65,6 @@
   transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
-  background: white;
   z-index: 0;
 }
 
@@ -58,21 +76,32 @@
   background: white;
   border-radius: 9999px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-  padding: 4px 4px 4px 4px;
+  padding: 4px;
   min-height: 72px;
   min-width: 72px;
 }
 
-/* БОЛЬШОЙ круглый аватар слева */
+/* Базовый стиль */
 .extendedWrapper .avatar {
   width: 64px;
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 8px;
+  border: 3px solid transparent;
 }
 
-/* Текст справа */
+/* Цветные обводки */
+.extendedWrapper.music     .avatar { border-color: #3B82F6; }
+.extendedWrapper.theatre   .avatar { border-color: #B91C1C; }
+.extendedWrapper.sports    .avatar { border-color: #EF4444; }
+.extendedWrapper.art       .avatar { border-color: #EC4899; }
+.extendedWrapper.festivals .avatar { border-color: #06B6D4; }
+.extendedWrapper.wellness  .avatar { border-color: #22C55E; }
+.extendedWrapper.family    .avatar { border-color: #FACC15; }
+.extendedWrapper.talks     .avatar { border-color: #FB923C; }
+.extendedWrapper.food      .avatar { border-color: #F97316; }
+
 .label {
   font-size: 12px;
   font-weight: 600;
@@ -83,8 +112,7 @@
   max-width: 140px;
 }
 
-/* Хвост — под кругом (по центру аватара) */
-.tip {
+.extendedWrapper .tip {
   position: absolute;
   bottom: -2px;
   left: 36px;

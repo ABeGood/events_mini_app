@@ -1,0 +1,18 @@
+.screen {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scrollOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  padding-top: 360px; /* высота Hero */
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+}
+

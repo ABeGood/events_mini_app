@@ -1,0 +1,14 @@
+.button {
+  width: 100%;
+  max-width: 100%;
+  background-color: black;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 14px 20px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 9999px;
+  align-self: flex-start;
+  cursor: pointer;
+}

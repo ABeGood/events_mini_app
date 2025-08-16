@@ -1,3 +1,4 @@
+// src/components_main/PinDemo/PinDemo.tsx
 import React, { useState } from 'react';
 import Pin from '../Pin/Pin';
 import UserLocationMarker from '@/components_main/UserLocationMarker/UserLocationMarker';
@@ -9,6 +10,8 @@ import SearchBar from '@/components_main/SearchBar/SearchBar';
 import FilterChip from '@/components_main/FilterChip/FilterChip';
 import FilterHeader from '@/components_main/FilterHeader/FilterHeader';
 import RecommendationList from '@/components_main/Recommendation/RecommendationList';
+import EventDetails from '@/components_main/EventDetails_components/EventDetails/EventDetails';
+import SideDrawer from '../SideMenu/SideDrawer';
 
 const mockDates = [
   { date: '2025-07-15', dayLabel: 'Вт', dayNumber: 15, isToday: true, isWeekend: false },
@@ -38,10 +41,11 @@ const categories = [
 
 const PinDemo: React.FC = () => {
   const [zoom, setZoom] = useState(11);
-  const [category, setCategory] = useState('Music');
+  const [category] = useState('Music');
   const [selectedDate, setSelectedDate] = useState('2025-07-15');
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
-  //const [searchValue, setSearchValue] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleChip = (chip: string) => {
     setSelectedChips(prev =>
@@ -55,6 +59,25 @@ const PinDemo: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      <button
+        onClick={() => setIsDrawerOpen(true)}
+        style={{
+          position: 'fixed',
+          top: 20,
+          left: 20,
+          zIndex: 2000,
+          backgroundColor: '#111827',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '10px 14px',
+          fontWeight: 600,
+          cursor: 'pointer'
+        }}
+      >
+        ☰ Меню
+      </button>
+
       <div className={styles.controls}>
         <label>
           Zoom:
@@ -68,14 +91,28 @@ const PinDemo: React.FC = () => {
           {zoom}
         </label>
 
-        
+        <button
+          onClick={() => setShowDetails(true)}
+          style={{
+            marginLeft: '20px',
+            padding: '8px 14px',
+            backgroundColor: '#3B82F6',
+            color: 'white',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+            fontWeight: 500
+          }}
+        >
+          Показать EventDetails
+        </button>
       </div>
 
       <div className={styles.pinPreview}>
         <h4>Event Pin</h4>
         <Pin
           zoomLevel={zoom}
-          category={category as any}
+          category="sports"
           avatarUrl="https://i.imgur.com/2DhmtJ4.jpg"
           name="Kool & The Gang"
         />
@@ -84,21 +121,53 @@ const PinDemo: React.FC = () => {
         <UserLocationMarker size={24} />
         <LocateButton onLocate={handleLocate} />
 
+        {showDetails && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'white',
+              overflowY: 'scroll',
+              zIndex: 1000
+            }}
+          >
+            <button
+              onClick={() => setShowDetails(false)}
+              style={{
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                padding: '6px 12px',
+                backgroundColor: '#e5e7eb',
+                borderRadius: 6,
+                zIndex: 1001
+              }}
+            >
+              Закрыть
+            </button>
+            <EventDetails />
+          </div>
+        )}
+
         <BottomSheetContainer>
           <DateSelector
             dates={mockDates}
             selectedDate={selectedDate}
             onSelect={setSelectedDate}
           />
-
           <SearchBar onClick={() => {}} />
-
-
-
           <FilterHeader count={123} />
-
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '12px 0' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 8,
+              padding: '12px 0'
+            }}
+          >
             {categories.map(({ label, key }) => (
               <FilterChip
                 key={key}
@@ -109,10 +178,13 @@ const PinDemo: React.FC = () => {
               />
             ))}
           </div>
-
           <RecommendationList />
         </BottomSheetContainer>
       </div>
+
+      <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+        <p style={{ color: '#111' }}></p>
+      </SideDrawer>
     </div>
   );
 };

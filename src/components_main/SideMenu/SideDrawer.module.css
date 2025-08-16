@@ -1,0 +1,37 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: -100vw; /* чтобы точно был за пределами */
+  width: 85vw;   /* ← вот тут магия: адаптивная ширина */
+  max-width: 400px; /* можно ограничить максимум для больших экранов */
+  height: 100vh;
+  background: #f3f4f6;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s ease;
+  z-index: 20;
+  
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.drawer.open {
+  left: 0;
+}
