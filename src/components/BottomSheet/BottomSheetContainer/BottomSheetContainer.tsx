@@ -23,6 +23,8 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
   const [currentY, setCurrentY] = useState(0);
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastScrollTop = useRef(0);
 
   const { triggerHaptic } = useTelegramApp();
   const { createGestureHandler } = useTelegramGestures();
@@ -94,6 +96,24 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     setDragOffset(0);
   };
 
+  // Handle content scroll to prevent rubber band on scroll down only
+  const handleContentScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const currentScrollTop = target.scrollTop;
+    const isScrollingDown = currentScrollTop > lastScrollTop.current;
+    const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 1;
+    
+    if (isScrollingDown && isAtBottom && position === 'expanded') {
+      // Prevent rubber band on scroll down when at bottom
+      target.style.overscrollBehavior = 'none';
+    } else {
+      // Allow rubber band on scroll up or when not at bottom
+      target.style.overscrollBehavior = 'auto';
+    }
+    
+    lastScrollTop.current = currentScrollTop;
+  };
+
   // Create gesture handlers
   const gestureHandlers = createGestureHandler(onGestureStart, onGestureMove, onGestureEnd);
 
@@ -146,7 +166,11 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
       >
         <div className={styles.dragIndicator} />
       </div>
-      <div className={styles.content}>
+      <div 
+        ref={contentRef}
+        className={styles.content}
+        onScroll={handleContentScroll}
+      >
         {children}
       </div>
     </div>
