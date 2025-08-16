@@ -53,7 +53,6 @@ export const IndexPage = () => {
   const {
     initializeTelegramApp,
     triggerHaptic,
-    isWebAppReady
   } = useTelegramApp();
 
   // Debug logging
@@ -76,25 +75,18 @@ export const IndexPage = () => {
     console.log('===============================');
   }, [apiEvents, backendStatus]);
 
-  // Initialize Telegram WebApp once WebApp is ready
+  // Initialize Telegram WebApp once on mount
   useEffect(() => {
-    if (isWebAppReady) {
-      const initializeApp = async () => {
-        console.log('🚀 Initializing Telegram WebApp...');
-        
-        // Initialize Telegram WebApp
-        const success = initializeTelegramApp();
-        
-        if (success) {
-          console.log('✅ Telegram WebApp initialized successfully');
-        } else {
-          console.warn('⚠️ Telegram WebApp initialization failed');
-        }
-      };
+    const initializeApp = async () => {
+      // Initialize Telegram WebApp first
+      initializeTelegramApp();
 
-      initializeApp();
-    }
-  }, [initializeTelegramApp, isWebAppReady]);
+      // Small delay to ensure Telegram WebApp is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+    };
+
+    initializeApp();
+  }, [initializeTelegramApp]);
   // const handleSheetPositionChange = (position: number) => {
   //   const isOpening = position > sheetPosition;
   //   setSheetPosition(position);
