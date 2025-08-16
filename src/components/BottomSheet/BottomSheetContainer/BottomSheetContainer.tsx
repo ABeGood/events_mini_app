@@ -1,6 +1,6 @@
 // src/components/BottomSheet/BottomSheetContainer.tsx
 import React, { PropsWithChildren, useState, useRef, useEffect } from 'react';
-import { useTelegramGestures, type GestureState } from '../../../hooks/useTelegramGestures';
+import { useTelegramGestures } from '../../../hooks/useTelegramGestures';
 import { useTelegramApp } from '../../../hooks/useTelegramApp';
 import styles from './BottomSheetContainer.module.css';
 
@@ -57,7 +57,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     setDragOffset(deltaY);
   };
 
-  const onGestureEnd = (_e: TouchEvent, state: GestureState) => {
+  const onGestureEnd = (_e: TouchEvent) => {
     if (!isDragging) return;
 
     const deltaY = currentY - startY;
@@ -85,8 +85,7 @@ const BottomSheetContainer: React.FC<PropsWithChildren<BottomSheetContainerProps
     }
 
     if (shouldChangePosition) {
-      setPosition(newPosition);
-      onPositionChange?.(newPosition);
+      handlePositionChange(newPosition);
     }
 
     setIsDragging(false);
